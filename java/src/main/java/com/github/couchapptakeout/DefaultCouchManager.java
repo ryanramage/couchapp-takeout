@@ -7,7 +7,9 @@ package com.github.couchapptakeout;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
+import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,12 +53,30 @@ public class DefaultCouchManager implements LocalCouch{
 
     @Override
     public void installCouchDbEmbedded() throws CouchDbInstallException {
-        // download couchdb for os
-        // find a random port
-        // set random port in ini
-        // start embedded
+        try {
+            // download couchdb for os
+            
+
+
+            // find a random port
+            int port = findFreePort();
+            // set random port in ini
+            String iniFile = getCouchIniLocation();
+            setEmbeddedCouchPort(iniFile, port);
+        } catch (IOException ex) {
+            Logger.getLogger(DefaultCouchManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
+
+    protected File downloadWin() throws Exception {
+        File workDir = getWorkingDir();
+        File couchZip = new File(workDir, "couchdb.zip");
+        URL source = new URL("http://eckoit.googlecode.com/svn/extra/windows/CouchDB-1.1.zip");
+        FileDownloader fd = new FileDownloader(source, couchZip);
+        new Thread(fd).start();
+        return couchZip;
+    }
 
 
     protected static File getWorkingDir() {
@@ -134,6 +154,11 @@ public class DefaultCouchManager implements LocalCouch{
         return port;
     }
 
+    protected void setEmbeddedCouchPort(String localIniFile, int port) throws IOException {
+        Wini ini = new Wini(new File(localIniFile));
+        ini.put("httpd", "port", port);
+        ini.store();
+    }
 
 
     private CouchDbInstance waitForEmbeddedCouch() {

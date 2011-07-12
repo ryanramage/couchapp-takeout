@@ -45,8 +45,6 @@ public class FileDownloader implements Runnable {
         downloaded = 0;
         status = DOWNLOADING;
 
-        // Begin the download.
-        download();
     }
 
     // Get this download's URL.
@@ -79,7 +77,7 @@ public class FileDownloader implements Runnable {
     public void resume() {
         status = DOWNLOADING;
         stateChanged();
-        download();
+
     }
 
     // Cancel this download.
@@ -94,11 +92,7 @@ public class FileDownloader implements Runnable {
         stateChanged();
     }
 
-    // Start or resume downloading.
-    private void download() {
-        Thread thread = new Thread(this);
-        thread.start();
-    }
+
 
 
 
@@ -108,6 +102,7 @@ public class FileDownloader implements Runnable {
         InputStream stream = null;
 
         try {
+            System.out.println("Running!");
             // Open connection to URL.
             HttpURLConnection connection =
                     (HttpURLConnection) url.openConnection();
@@ -170,6 +165,7 @@ public class FileDownloader implements Runnable {
                 stateChanged();
             }
         } catch (Exception e) {
+            e.printStackTrace();
             error();
         } finally {
             // Close file.
