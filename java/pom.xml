@@ -41,6 +41,55 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo.webstart</groupId>
+                <artifactId>webstart-maven-plugin</artifactId>
+                <version>1.0-beta-1</version>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>jnlp</goal>
+                    </goals>
+                  </execution>
+                </executions>
+                <configuration>
+                  <jnlp>
+                    <!-- we play with the resource path and template relative path to test MOJO-391 -->
+                    <!--inputTemplateResourcePath>${project.basedir}/src/</inputTemplateResourcePath>
+                    <inputTemplate>jnlp/template.vm</inputTemplate-->
+                    <outputFile>test.jnlp</outputFile>
+                    <mainClass>com.github.couchapptakeout.App</mainClass>
+                  </jnlp>
+
+                  <!-- SIGNING -->
+                  <!-- defining this will automatically sign the jar and its dependencies -->
+                  <sign>
+                    <keystore>~/keystore</keystore>
+                    <keypass>m2m2m2</keypass>
+                    <storepass>m2m2m2</storepass>
+                    <!--sigfile>m2m2m2</sigfile-->
+                    <alias>alias</alias>
+                    <validity>180</validity>
+
+                    <dnameCn>www.example.com</dnameCn>
+                    <dnameOu>None</dnameOu>
+                    <dnameO>ExampleOrg</dnameO>
+                    <dnameL>Seattle</dnameL>
+                    <dnameSt>Washington</dnameSt>
+                    <dnameC>US</dnameC>
+
+                    <verify>true</verify>
+
+                    <keystoreConfig>
+                      <delete>true</delete>
+                      <gen>false</gen>
+                    </keystoreConfig>
+
+                  </sign>
+
+                  <verbose>false</verbose>
+                </configuration>
+            </plugin>
         </plugins>
         <extensions>
             <extension>
@@ -59,6 +108,11 @@
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
                 </plugin>
+                <plugin>
+                  <groupId>org.codehaus.mojo.webstart</groupId>
+                  <artifactId>webstart-maven-plugin</artifactId>
+                  <version>1.0-beta-1</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -73,11 +127,6 @@
             <groupId>org.ektorp</groupId>
             <artifactId>org.ektorp</artifactId>
             <version>1.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>dnl.jexem</groupId>
-            <artifactId>jexem-core</artifactId>
-            <version>0.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
