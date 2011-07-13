@@ -14,9 +14,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.SystemUtils;
+import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
+import org.ektorp.impl.StdCouchDbConnector;
 import org.ektorp.impl.StdCouchDbInstance;
 import org.ini4j.Wini;
 
@@ -68,6 +70,10 @@ public class DefaultCouchManager implements LocalCouch{
         }
     }
 
+    @Override
+    public CouchDbConnector getCouchConnector(String name, CouchDbInstance instance) {
+        return  new StdCouchDbConnector(name, instance);
+    }
 
     protected File downloadWin() throws Exception {
         File workDir = getWorkingDir();

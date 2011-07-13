@@ -30,12 +30,16 @@ public class LoadingDialog extends javax.swing.JDialog {
             @Override
             public void onEvent(LoadingMessage t) {
 
-                System.out.println("Loading message: " + t.getStepDesc());
 
-                stepProgressBar.setMinimum(1);
-                stepProgressBar.setMaximum(t.getTotalSteps());
-                stepProgressBar.setValue(t.getStepNum());
-                stepProgressBar.setString(t.getStepName());
+                // only update if stepnum > 0
+                if (t.getStepNum() > 0) {
+
+                    stepProgressBar.setMinimum(1);
+                    stepProgressBar.setMaximum(t.getTotalSteps());
+                    stepProgressBar.setValue(t.getStepNum());
+                    stepProgressBar.setString(t.getStepName());
+                }
+                
 
                 if (t.getStatusTotal() == 0) {
                     statusProgressBar.setIndeterminate(true);

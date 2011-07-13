@@ -39,6 +39,7 @@ public class App {
     String localDbName;
     boolean sync = false;
     LocalCouch localCouchManager;
+    AuthenticationDialog dialog;
     LoadingDialog loadingDialog;
 
 
@@ -54,6 +55,8 @@ public class App {
     public void setLocalCouchManager(LocalCouch localCouchManager) {
         this.localCouchManager = localCouchManager;
     }
+
+    
 
 
     protected String createLocalDbName() {
@@ -73,7 +76,7 @@ public class App {
     public void start() throws Exception {
         try {
             CouchDbInstance instance = localCouchManager.getCouchInstance();
-            CouchDbConnector db = new StdCouchDbConnector(localDbName, instance);
+            CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, instance);
             DbInfo info = db.getDbInfo();
             ready(db);
         } catch(CouchDBNotFoundException nfe) {
@@ -102,18 +105,18 @@ public class App {
             }
 
             CouchDbInstance instance = localCouchManager.getCouchInstance();
-            CouchDbConnector db = new StdCouchDbConnector(localDbName, instance);
+            CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, instance);
             db.createDatabaseIfNotExists();
 
             // replicate
             EventBus.publish(new LoadingMessage(step, totalSteps, "Downloading Data", 0, 0, "Copy data from " + getSrcReplicationUrl(false) ));            
             String src_fullurl = getSrcReplicationUrl(true);
             ReplicationStatus status = db.replicateFrom(src_fullurl);
-            status.isOk();
+            //should check status.isOk();
 
             if (sync) {
                 // create a continous replication
-                CouchDbConnector rep_db = new StdCouchDbConnector("_replicator", instance);
+                CouchDbConnector rep_db = localCouchManager.getCouchConnector("_replicator", instance);
                 ObjectMapper mapper = new ObjectMapper();
                 ObjectNode rep_info = mapper.createObjectNode();
                 rep_info.put("_id", "couchapp-takout-" + localDbName);
@@ -133,7 +136,7 @@ public class App {
     }
 
 
-    private void showLoadingDialog() {
+    protected void showLoadingDialog() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 if (loadingDialog == null) {
@@ -169,7 +172,7 @@ public class App {
 
 
     private void promptForCredientials() {
-        AuthenticationDialog dialog = new AuthenticationDialog(new javax.swing.JFrame(), true);
+        dialog = new AuthenticationDialog(new javax.swing.JFrame(), true);
         dialog.setSrcUrl(getSrcReplicationUrl(false));
         dialog.setUsername(src_username);
 
@@ -266,6 +269,16 @@ public class App {
     private static boolean errorAndAbort(Exception ie) {
         // show the user the error and abort
         return false;
+    }
+
+
+    // used for testing...
+    protected AuthenticationDialog getAuthenticationDialog() {
+        return dialog;
+    }
+
+    protected LoadingDialog getLoadingDialog() {
+        return loadingDialog;
     }
 
 

@@ -150,6 +150,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+          <groupId>org.easymock</groupId>
+          <artifactId>easymock</artifactId>
+          <version>3.0</version>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.swinglabs</groupId>
             <artifactId>swing-layout</artifactId>
             <version>1.0.3</version>

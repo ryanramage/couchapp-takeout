@@ -5,7 +5,9 @@
 
 package com.github.couchapptakeout;
 
+import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
+import org.ektorp.impl.StdCouchDbConnector;
 
 /**
  *
@@ -32,6 +34,11 @@ public class LocalCouchMock implements LocalCouch  {
     @Override
     public void installCouchDbEmbedded() throws CouchDbInstallException {
         // noop
+    }
+
+    @Override
+    public CouchDbConnector getCouchConnector(String name, CouchDbInstance instance) {
+        return  new StdCouchDbConnector(name, instance);
     }
 
 }

@@ -5,6 +5,7 @@
 
 package com.github.couchapptakeout;
 
+import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 
 /**
@@ -14,6 +15,7 @@ import org.ektorp.CouchDbInstance;
 public interface LocalCouch {
 
     CouchDbInstance getCouchInstance() throws CouchDBNotFoundException;
+    CouchDbConnector getCouchConnector(String name, CouchDbInstance instance);
     void installCouchDbEmbedded() throws CouchDbInstallException;
     
 }
