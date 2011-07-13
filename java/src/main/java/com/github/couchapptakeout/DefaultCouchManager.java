@@ -29,10 +29,23 @@ import org.ini4j.Wini;
 public class DefaultCouchManager implements LocalCouch{
 
     private int localCouchPort = 5984;
+    private CouchDownloader couchDownloader;
+    private Unzipper unzipper;
+
+
+    public void setCouchDownloader(CouchDownloader couchDownloader) {
+        this.couchDownloader = couchDownloader;
+    }
+
+    public void setUnzipper(Unzipper unzipper) {
+        this.unzipper = unzipper;
+    }
 
     public void setLocalCouchPort(int localCouchPort) {
         this.localCouchPort = localCouchPort;
     }
+
+
 
     @Override
     public CouchDbInstance getCouchInstance() throws CouchDBNotFoundException {
@@ -57,8 +70,11 @@ public class DefaultCouchManager implements LocalCouch{
     public void installCouchDbEmbedded() throws CouchDbInstallException {
         try {
             // download couchdb for os
-            
+            File couchZip = couchDownloader.downloadLatestCouch(getWorkingDir());
 
+            File couchDir = new File(getWorkingDir(), "couch");
+
+            unzipper.doUnzip(couchZip.getAbsolutePath(), couchDir.getAbsolutePath());
 
             // find a random port
             int port = findFreePort();

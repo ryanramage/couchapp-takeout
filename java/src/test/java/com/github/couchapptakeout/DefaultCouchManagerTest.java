@@ -57,36 +57,15 @@ public class DefaultCouchManagerTest {
         assertTrue(port > 0);
     }
 
-
-    public void testDownloadWin() throws Exception {
-
-
-
-        EventBus.subscribeStrongly(FileDownloader.class, new EventSubscriber<FileDownloader>() {
-            @Override
-            public void onEvent(FileDownloader t) {
-                if (t.getStatus() == FileDownloader.COMPLETE) {
-                    complete = true;
-                }
-                System.out.println(t.getStatus());
-                System.out.println(t.getProgress());
-            }
-        });
-
-
+    @Test
+    public void testInstallCouchDbEmbedded() throws CouchDbInstallException {
         DefaultCouchManager manager = new DefaultCouchManager();
-        long timestamp = System.currentTimeMillis();
-        manager.downloadWin();
+        BasicCouchDownloader bcd = new BasicCouchDownloader("http://couchdb-binary-releases.googlecode.com/svn/trunk");
+        DefaultUnzipper unzipper = new DefaultUnzipper();
+        manager.setCouchDownloader(bcd);
+        manager.setUnzipper(unzipper);
 
-        while(!complete && ((System.currentTimeMillis() - timestamp) < 90000  )) {
-            System.out.println("Sleep");
-            Thread.sleep(1000);
-        }
-
-        if (!complete) fail("Download did not complete");
-        
-        
-
+        manager.installCouchDbEmbedded();
     }
 
 

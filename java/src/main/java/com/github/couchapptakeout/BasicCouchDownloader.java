@@ -31,6 +31,7 @@ public class BasicCouchDownloader implements CouchDownloader{
         if (!rootUrl.endsWith("/")) {
             this.rootUrl = rootUrl + "/";
         }
+
     }
 
     @Override
