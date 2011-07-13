@@ -28,21 +28,21 @@ public class AppTest {
 
     @Test
     public void createLocalDatabaseNameTest() {
-        App app = new App("choose.iriscouch.com", "choose", 80, null, null);
+        App app = new App("choose.iriscouch.com", "choose", 80, null);
         String localDbName = app.createLocalDbName();
         assertEquals("choose(choose_iriscouch_com)", localDbName);
     }
 
     @Test
     public void createLocalDatabaseNameTestPort() {
-        App app = new App("choose.iriscouch.com", "choose", 5984, null, null);
+        App app = new App("choose.iriscouch.com", "choose", 5984, null);
         String localDbName = app.createLocalDbName();
         assertEquals("choose(choose_iriscouch_com-5984)", localDbName);
     }
 
     @Test
     public void createLocalDatabaseNameLowerCase() {
-        App app = new App("choose.irisCouch.com", "choose", 5984, null, null);
+        App app = new App("choose.irisCouch.com", "choose", 5984, null);
         String localDbName = app.createLocalDbName();
         assertEquals("choose(choose_iriscouch_com-5984)", localDbName);
     }

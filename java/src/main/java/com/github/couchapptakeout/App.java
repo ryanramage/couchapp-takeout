@@ -5,9 +5,14 @@
 
 package com.github.couchapptakeout;
 
+import com.github.couchapptakeout.ui.AuthenticationDialog;
+import com.github.couchapptakeout.ui.LoadingDialog;
+import com.sun.corba.se.impl.protocol.giopmsgheaders.MessageBase;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
+import org.apache.commons.lang.StringUtils;
+import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventServiceLocator;
 import org.bushe.swing.event.ThreadSafeEventService;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -33,17 +38,18 @@ public class App {
     String src_username;
     String src_password;
     String localDbName;
-    boolean sync = true;
+    boolean sync = false;
     LocalCouch localCouchManager;
+    LoadingDialog loadingDialog;
 
 
-    public App(String src_host, String src_db, int src_port, String src_username, String src_password) {
+    public App(String src_host, String src_db, int src_port, String src_username) {
         this.src_host = src_host;
         this.src_db = src_db;
         this.src_port = src_port;
         this.src_username = src_username;
-        this.src_password = src_password;
         this.localDbName = createLocalDbName();
+        localCouchManager = new DefaultCouchManager();
     }
 
     public void setLocalCouchManager(LocalCouch localCouchManager) {
@@ -68,14 +74,21 @@ public class App {
     public void start() {
 
 
+        boolean hadToInstallCouch = false;
+        int step = 1;
+        int totalSteps = 2;
 
         CouchDbInstance instance = null;
         try {
             instance = localCouchManager.getCouchInstance();
         } catch(CouchDBNotFoundException nfe) {
             try {
+                showLoadingDialog();
+                hadToInstallCouch = true;
+                totalSteps = 4;
                 localCouchManager.installCouchDbEmbedded();
                 instance = localCouchManager.getCouchInstance();
+                hideLoadingDialog();
             } catch (CouchDbInstallException ie) {
 
             } catch (CouchDBNotFoundException nfe2) {
@@ -83,11 +96,29 @@ public class App {
             }
         }
         CouchDbConnector db = new StdCouchDbConnector(localDbName, instance);
-        DbInfo info = db.getDbInfo();
-        if (info == null) {
+
+        try {
+            DbInfo info = db.getDbInfo();
+        } catch (Exception noInfo) {
+
+
+
+            // we need to prompt for credentials if there is a username
+            if (StringUtils.isNotBlank(src_username)) {
+                promptForCredientials();
+            }
+            
+            if (!hadToInstallCouch)
+                showLoadingDialog();
+
+
+            EventBus.publish(new LoadingMessage(step, totalSteps, "Setting Up Database", 1, 4, "Creating Database " + localDbName));
             db.createDatabaseIfNotExists();
             // replicate
-            String src_fullurl = getSrcReplicationName();
+            System.out.println("Setting DB");
+            EventBus.publish(new LoadingMessage(step, totalSteps, "Setting Up Database", 2, 4, "Copy data from " + getSrcReplicationUrl(false) ));
+
+            String src_fullurl = getSrcReplicationUrl(true);
             ReplicationStatus status = db.replicateFrom(src_fullurl);
             status.isOk();
 
@@ -96,30 +127,79 @@ public class App {
                 CouchDbConnector rep_db = new StdCouchDbConnector("_replicator", instance);
                 ObjectMapper mapper = new ObjectMapper();
                 ObjectNode rep_info = mapper.createObjectNode();
-                rep_info.put("_id", "couchapp-takout");
+                rep_info.put("_id", "couchapp-takout-" + localDbName);
                 rep_info.put("source", src_fullurl);
                 rep_info.put("target", localDbName);
                 rep_info.put("continuous", true);
                 rep_db.create(rep_info);
             }
+
+            EventBus.publish(new LoadingMessage(step, totalSteps, "Setting Up Database", 4, 4, "Complete!"));
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            hideLoadingDialog();
+
         }
 
     }
 
+    private void showLoadingDialog() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                if (loadingDialog == null) {
+                    loadingDialog = new LoadingDialog(new javax.swing.JFrame(), true);
+                }
+                loadingDialog.setVisible(true);
+            }
+        });
+        // wait for it to be visable
+        while (loadingDialog == null || !loadingDialog.isShowing()) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
 
 
-    public String getSrcReplicationName() {
+
+
+    }
+
+    private void hideLoadingDialog() {
+        loadingDialog.dispose();
+    }
+
+
+    private void promptForCredientials() {
+        AuthenticationDialog dialog = new AuthenticationDialog(new javax.swing.JFrame(), true);
+        dialog.setSrcUrl(getSrcReplicationUrl(false));
+        dialog.setUsername(src_username);
+
+        dialog.setVisible(true);
+        if (dialog.isOk()) {
+            src_username = dialog.getUsername();
+            src_password = new String(dialog.getPassword());
+        }
+    }
+
+
+    public String getSrcReplicationUrl(boolean includeUserDetails) {
         String protocol = "http";
 
         StringBuilder builder = new StringBuilder(protocol);
         builder.append("://");
 
 
-
-        if (src_username != null && !src_username.equals("")) {
-            builder.append(src_username);
-            builder.append(":").append(src_password);
-            builder.append("@");
+        if (includeUserDetails) {
+            if (src_username != null && !src_username.equals("")) {
+                builder.append(src_username);
+                builder.append(":").append(src_password);
+                builder.append("@");
+            }
         }
 
         builder.append(src_host).append("/");
@@ -160,7 +240,6 @@ public class App {
             String db   = null;
             int port    = -1;
             String username = null;
-            String password = null;
 
             if (args.length >= 1) {
                 String[] hostport = parseUsernamePass(args[0]);
@@ -177,9 +256,8 @@ public class App {
             if (args.length == 3) {
                 String[] up = parseUsernamePass(args[2]);
                 username = up[0];
-                if (up.length == 2) password = up[1];
             }
-            new App(host, db, port, username, password).start();
+            new App(host, db, port, username).start();
 
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
