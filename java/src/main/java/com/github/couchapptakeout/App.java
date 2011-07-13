@@ -7,8 +7,18 @@ package com.github.couchapptakeout;
 
 import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.LoadingDialog;
+import java.awt.Desktop;
+import java.awt.MenuItem;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import org.apache.commons.lang.StringUtils;
 import org.bushe.swing.event.EventBus;
@@ -113,6 +123,7 @@ public class App {
             CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, instance);
             db.createDatabaseIfNotExists();
 
+           
             // replicate
             EventBus.publish(new LoadingMessage(step, totalSteps, "Downloading Data", 0, 0, "Copy data from " + getSrcReplicationUrl(false) ));            
             String src_fullurl = getSrcReplicationUrl(true);
@@ -138,6 +149,9 @@ public class App {
 
     protected void ready(CouchDbConnector db) {
         // now setup the tray
+        List menuItems = createMenu();
+        Tray tray = new Tray("/plate.png", "App on ", menuItems);
+        db.getDatabaseName();
     }
 
 
@@ -277,6 +291,75 @@ public class App {
     }
 
 
+    // menu actions.
+    private List createMenu() {
+        List menuItems = new ArrayList();
+        menuItems.add(createSiteMenuItem());
+        menuItems.add(Tray.MENU_SEPERATOR);
+        menuItems.add(createExitMenuItem());
+
+        return menuItems;
+    }
+    protected MenuItem createSiteMenuItem() {
+        MenuItem item = new MenuItem("Open Application");
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+
+                        //showUrl(new URL("http://" + couchHost + ":" + couchPort + "/" + wikidName + "/dashboard.html" ));
+
+                    }
+                });
+            }
+        });
+        return item;
+    }
+
+    protected MenuItem createExitMenuItem() {
+        MenuItem item = new MenuItem("Exit");
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                EventBus.publish(new ExitApplicationMessage() );
+                // Exit the app later
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        System.exit(0);
+
+                    }
+                });
+            }
+        });
+        return item;
+    }
+    protected void showUrl(URL dest) {
+
+
+        Desktop desktop = null;
+        // Before more Desktop API is used, first check
+        // whether the API is supported by this particular
+        // virtual machine (VM) on this particular host.
+        if (Desktop.isDesktopSupported()) {
+            Logger.getLogger(App.class.getName()).log(Level.INFO, "Getting Desktop");
+            desktop = Desktop.getDesktop();
+            try {
+                Logger.getLogger(App.class.getName()).log(Level.INFO, "Browse Command");
+                desktop.browse(dest.toURI());
+                Logger.getLogger(App.class.getName()).log(Level.INFO, "showURl Complete");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null,
+                "Exception: " + ex.getMessage());
+            }
+        }
+    }
+
     // used for testing...
     protected AuthenticationDialog getAuthenticationDialog() {
         return dialog;
@@ -285,6 +368,7 @@ public class App {
     protected LoadingDialog getLoadingDialog() {
         return loadingDialog;
     }
+
 
 
 }
