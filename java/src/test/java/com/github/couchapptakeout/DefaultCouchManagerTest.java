@@ -57,7 +57,7 @@ public class DefaultCouchManagerTest {
         assertTrue(port > 0);
     }
 
-    @Test
+
     public void testDownloadWin() throws Exception {
 
 
