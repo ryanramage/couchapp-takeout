@@ -7,7 +7,6 @@ package com.github.couchapptakeout;
 
 import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.LoadingDialog;
-import com.sun.corba.se.impl.protocol.giopmsgheaders.MessageBase;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
@@ -71,53 +70,43 @@ public class App {
     }
 
 
-    public void start() {
-
-
-        boolean hadToInstallCouch = false;
-        int step = 1;
-        int totalSteps = 2;
-
-        CouchDbInstance instance = null;
+    public void start() throws Exception {
         try {
-            instance = localCouchManager.getCouchInstance();
-        } catch(CouchDBNotFoundException nfe) {
-            try {
-                showLoadingDialog();
-                hadToInstallCouch = true;
-                totalSteps = 4;
-                localCouchManager.installCouchDbEmbedded();
-                instance = localCouchManager.getCouchInstance();
-                hideLoadingDialog();
-            } catch (CouchDbInstallException ie) {
-
-            } catch (CouchDBNotFoundException nfe2) {
-                
-            }
-        }
-        CouchDbConnector db = new StdCouchDbConnector(localDbName, instance);
-
-        try {
+            CouchDbInstance instance = localCouchManager.getCouchInstance();
+            CouchDbConnector db = new StdCouchDbConnector(localDbName, instance);
             DbInfo info = db.getDbInfo();
+            ready(db);
+        } catch(CouchDBNotFoundException nfe) {
+            ready(loadNeeded(true));
         } catch (Exception noInfo) {
+            ready(loadNeeded(false));
+        }
+    }
 
 
-
+    protected CouchDbConnector loadNeeded( boolean haveToInstallCouch ) throws CouchDbInstallException, CouchDBNotFoundException {
             // we need to prompt for credentials if there is a username
             if (StringUtils.isNotBlank(src_username)) {
                 promptForCredientials();
             }
-            
-            if (!hadToInstallCouch)
-                showLoadingDialog();
+            showLoadingDialog();
 
+            int step = 1;
+            int totalSteps = 3;
 
-            EventBus.publish(new LoadingMessage(step, totalSteps, "Setting Up Database", 1, 4, "Creating Database " + localDbName));
+            if (haveToInstallCouch) {
+                totalSteps = 4; // one extra step
+                EventBus.publish(new LoadingMessage(step++, totalSteps, "Downloading Application...", 0, 0, "Starting..." ));
+                localCouchManager.installCouchDbEmbedded();
+
+            }
+
+            CouchDbInstance instance = localCouchManager.getCouchInstance();
+            CouchDbConnector db = new StdCouchDbConnector(localDbName, instance);
             db.createDatabaseIfNotExists();
-            // replicate
-            System.out.println("Setting DB");
-            EventBus.publish(new LoadingMessage(step, totalSteps, "Setting Up Database", 2, 4, "Copy data from " + getSrcReplicationUrl(false) ));
 
+            // replicate
+            EventBus.publish(new LoadingMessage(step, totalSteps, "Downloading Data", 0, 0, "Copy data from " + getSrcReplicationUrl(false) ));            
             String src_fullurl = getSrcReplicationUrl(true);
             ReplicationStatus status = db.replicateFrom(src_fullurl);
             status.isOk();
@@ -134,17 +123,15 @@ public class App {
                 rep_db.create(rep_info);
             }
 
-            EventBus.publish(new LoadingMessage(step, totalSteps, "Setting Up Database", 4, 4, "Complete!"));
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            EventBus.publish(new LoadingMessage(totalSteps, totalSteps, "Downloading Data", 4, 4, "Complete!"));
             hideLoadingDialog();
-
-        }
-
+            return db;
     }
+
+    protected void ready(CouchDbConnector db) {
+        // now setup the tray
+    }
+
 
     private void showLoadingDialog() {
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -158,7 +145,7 @@ public class App {
         // wait for it to be visable
         while (loadingDialog == null || !loadingDialog.isShowing()) {
             try {
-                Thread.sleep(200);
+                Thread.sleep(100);
             } catch (InterruptedException ex) {
                 Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -170,6 +157,13 @@ public class App {
     }
 
     private void hideLoadingDialog() {
+        
+        // sleep a bit so user sees the final state.
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
         loadingDialog.dispose();
     }
 
@@ -261,10 +255,18 @@ public class App {
 
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            errorAndAbort(ex);
         }
     }
     public static String[] parseUsernamePass(String arg) {
         if (arg == null) return null;
         return arg.split(":");
     }
+
+    private static boolean errorAndAbort(Exception ie) {
+        // show the user the error and abort
+        return false;
+    }
+
+
 }
