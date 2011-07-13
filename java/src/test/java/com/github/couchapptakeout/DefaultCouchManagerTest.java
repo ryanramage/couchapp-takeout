@@ -5,13 +5,7 @@
 
 package com.github.couchapptakeout;
 
-import org.bushe.swing.event.EventBus;
 import java.util.Random;
-import org.bushe.swing.event.EventSubscriber;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

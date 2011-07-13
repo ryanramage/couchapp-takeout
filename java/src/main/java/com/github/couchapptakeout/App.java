@@ -49,7 +49,12 @@ public class App {
         this.src_port = src_port;
         this.src_username = src_username;
         this.localDbName = createLocalDbName();
-        localCouchManager = new DefaultCouchManager();
+        DefaultCouchManager lcm = new DefaultCouchManager();
+        BasicCouchDownloader bcd = new BasicCouchDownloader("http://couchdb-binary-releases.googlecode.com/svn/trunk");
+        DefaultUnzipper unzipper = new DefaultUnzipper();
+        lcm.setCouchDownloader(bcd);
+        lcm.setUnzipper(unzipper);
+        localCouchManager = lcm;
     }
 
     public void setLocalCouchManager(LocalCouch localCouchManager) {
@@ -99,7 +104,7 @@ public class App {
 
             if (haveToInstallCouch) {
                 totalSteps = 4; // one extra step
-                EventBus.publish(new LoadingMessage(step++, totalSteps, "Downloading Application...", 0, 0, "Starting..." ));
+                EventBus.publish(new LoadingMessage(step++, totalSteps, "Installing DB...", 0, 0, "Starting..." ));
                 localCouchManager.installCouchDbEmbedded();
 
             }

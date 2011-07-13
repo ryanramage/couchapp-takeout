@@ -6,6 +6,7 @@
 package com.github.couchapptakeout;
 
 import java.io.IOException;
+import java.io.File;
 
 /**
  *
@@ -13,6 +14,6 @@ import java.io.IOException;
  */
 public interface Unzipper {
 
-    void doUnzip(String inputZip, String destinationDirectory) throws IOException;
+    void doUnzip(File zipfile, File directory) throws IOException;
 
 }

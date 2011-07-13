@@ -74,7 +74,7 @@ public class DefaultCouchManager implements LocalCouch{
 
             File couchDir = new File(getWorkingDir(), "couch");
 
-            unzipper.doUnzip(couchZip.getAbsolutePath(), couchDir.getAbsolutePath());
+            unzipper.doUnzip(couchZip, couchDir);
 
             // find a random port
             int port = findFreePort();
@@ -90,16 +90,6 @@ public class DefaultCouchManager implements LocalCouch{
     public CouchDbConnector getCouchConnector(String name, CouchDbInstance instance) {
         return  new StdCouchDbConnector(name, instance);
     }
-
-    protected File downloadWin() throws Exception {
-        File workDir = getWorkingDir();
-        File couchZip = new File(workDir, "couchdb.zip");
-        URL source = new URL("http://eckoit.googlecode.com/svn/extra/windows/CouchDB-1.1.zip");
-        FileDownloader fd = new FileDownloader(source, couchZip);
-        new Thread(fd).start();
-        return couchZip;
-    }
-
 
     protected static File getWorkingDir() {
        String userHome = System.getProperty("user.home");

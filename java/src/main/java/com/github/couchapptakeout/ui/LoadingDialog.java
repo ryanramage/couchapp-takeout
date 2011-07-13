@@ -44,6 +44,7 @@ public class LoadingDialog extends javax.swing.JDialog {
                 if (t.getStatusTotal() == 0) {
                     statusProgressBar.setIndeterminate(true);
                 } else {
+                    statusProgressBar.setIndeterminate(false);
                     statusProgressBar.setMinimum(1);
                     statusProgressBar.setMaximum(t.getStatusTotal());
                     statusProgressBar.setValue(t.getStatusProgress());
