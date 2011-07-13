@@ -37,10 +37,15 @@ public class LoadingDialog extends javax.swing.JDialog {
                 stepProgressBar.setValue(t.getStepNum());
                 stepProgressBar.setString(t.getStepName());
 
-                statusProgressBar.setMinimum(1);
-                statusProgressBar.setMaximum(t.getStatusTotal());
-                statusProgressBar.setValue(t.getStatusProgress());
+                if (t.getStatusTotal() == 0) {
+                    statusProgressBar.setIndeterminate(true);
+                } else {
+                    statusProgressBar.setMinimum(1);
+                    statusProgressBar.setMaximum(t.getStatusTotal());
+                    statusProgressBar.setValue(t.getStatusProgress());
+                }
                 statusLabel.setText(t.getStepDesc());
+
 
             }
 
