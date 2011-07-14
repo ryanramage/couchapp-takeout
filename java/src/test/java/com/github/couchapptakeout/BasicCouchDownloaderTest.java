@@ -37,7 +37,7 @@ public class BasicCouchDownloaderTest {
     /**
      * Test of getLatestVersion method, of class BasicCouchDownloader.
      */
-    @Test
+
     public void testGetLatestVersion() {
         BasicCouchDownloader dl = new BasicCouchDownloader(rootUrl);
         String latestVersion = dl.getLatestVersion();

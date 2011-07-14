@@ -1,0 +1,1 @@
+{"couch":{"host":"localhost","port":5984,"db":"couchapp-takeout"}, "designDocName" : "_design/takeout"}
