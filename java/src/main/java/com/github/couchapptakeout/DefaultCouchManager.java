@@ -60,8 +60,9 @@ public class DefaultCouchManager implements LocalCouch{
         if (haveEmbeddedCouch()) {
             String exe = getCouchExe();
             CouchRunner runner = new CouchRunner(exe);
-            runner.setWorkingDir(new File(getWorkingDir(), COUCH_DIR));
-
+            if (!SystemUtils.IS_OS_WINDOWS) {
+                runner.setWorkingDir(new File(getWorkingDir(), COUCH_DIR));
+            }
             new Thread(runner).start();
             // wait for couch
             return waitForEmbeddedCouch();
@@ -179,6 +180,8 @@ public class DefaultCouchManager implements LocalCouch{
     protected void setEmbeddedCouchPort(String localIniFile, int port) throws IOException {
         Wini ini = new Wini(new File(localIniFile));
         ini.put("httpd", "port", port);
+        // side effect! need to ensure bind address is 127.0.0.1
+        ini.put("httpd", "bind_address", "127.0.0.1");
         ini.store();
     }
 

@@ -11,6 +11,7 @@
 
 package com.github.couchapptakeout.ui;
 
+import com.github.couchapptakeout.ExitApplicationMessage;
 import com.github.couchapptakeout.LoadingMessage;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventSubscriber;
@@ -149,6 +150,7 @@ public class LoadingDialog extends javax.swing.JDialog {
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         // TODO add your handling code here:
+        EventBus.publish(new ExitApplicationMessage());
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     /**

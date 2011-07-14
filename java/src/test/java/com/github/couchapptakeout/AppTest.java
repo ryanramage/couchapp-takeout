@@ -50,6 +50,12 @@ public class AppTest {
         assertEquals("choose(choose_iriscouch_com-5984)", localDbName);
     }
 
+    @Test
+    public void testGetSrcReplicationUrl() {
+        App app2 = new App("choose.iriscouch.com", "choose", 81, null);
+        String result = app2.getSrcReplicationUrl(false);
+        assertEquals("http://choose.iriscouch.com:81/choose", result);
+    }
 
     /**
      * Test of loadNeeded method, of class App.

@@ -41,7 +41,7 @@ public class OSUtils {
 
     public static String getCouchBinLocation() {
         if (SystemUtils.IS_OS_WINDOWS) {
-            return "bin/couchdb/couchdb.bat";
+            return "bin/couchdb.bat";
         }
         else if (SystemUtils.IS_OS_MAC_OSX) {
             return "couchdb_trunk/bin/couchdb";

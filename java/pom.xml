@@ -82,7 +82,7 @@
 
                     <keystoreConfig>
                       <delete>true</delete>
-                      <gen>true</gen>
+                      <gen>false</gen>
                     </keystoreConfig>
 
                   </sign>

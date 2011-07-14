@@ -107,12 +107,12 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="okButton" min="-2" pref="75" max="-2" attributes="0"/>
-                                  <EmptySpace pref="302" max="32767" attributes="0"/>
+                                  <EmptySpace pref="341" max="32767" attributes="0"/>
                                   <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="usernameTextField" pref="463" max="32767" attributes="0"/>
-                              <Component id="dataSourceTextField" alignment="0" pref="463" max="32767" attributes="0"/>
-                              <Component id="passwordField" alignment="0" pref="463" max="32767" attributes="0"/>
+                              <Component id="usernameTextField" pref="483" max="32767" attributes="0"/>
+                              <Component id="dataSourceTextField" alignment="0" pref="483" max="32767" attributes="0"/>
+                              <Component id="passwordField" alignment="0" pref="483" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>

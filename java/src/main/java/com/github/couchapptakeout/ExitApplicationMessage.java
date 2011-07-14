@@ -9,6 +9,6 @@ package com.github.couchapptakeout;
  *
  * @author ryan.ramage
  */
-class ExitApplicationMessage {
+public class ExitApplicationMessage {
 
 }

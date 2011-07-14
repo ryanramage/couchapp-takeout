@@ -23,6 +23,7 @@ import javax.swing.UIManager;
 import org.apache.commons.lang.StringUtils;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventServiceLocator;
+import org.bushe.swing.event.EventSubscriber;
 import org.bushe.swing.event.ThreadSafeEventService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
@@ -92,6 +93,20 @@ public class App {
 
 
     public void start() throws Exception {
+        // always listen for the exit application message
+        EventBus.subscribeStrongly(ExitApplicationMessage.class, new EventSubscriber<ExitApplicationMessage>() {
+            @Override
+            public void onEvent(ExitApplicationMessage t) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                System.exit(0);
+            }
+        });
+
+
         try {
             CouchDbInstance instance = localCouchManager.getCouchInstance();
             CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, instance);
@@ -229,7 +244,13 @@ public class App {
             }
         }
 
-        builder.append(src_host).append("/");
+        builder.append(src_host);
+        int couchPort = src_port;
+        if (couchPort <= 0) couchPort = 5984;
+        
+        builder.append(":").append(couchPort);
+
+        builder.append("/");
         builder.append(src_db);
 
         return builder.toString();
@@ -337,18 +358,6 @@ public class App {
             @Override
             public void actionPerformed(ActionEvent e) {
                 EventBus.publish(new ExitApplicationMessage() );
-                // Exit the app later
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        System.exit(0);
-
-                    }
-                });
             }
         });
         return item;

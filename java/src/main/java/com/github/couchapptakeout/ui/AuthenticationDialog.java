@@ -11,6 +11,9 @@
 
 package com.github.couchapptakeout.ui;
 
+import com.github.couchapptakeout.ExitApplicationMessage;
+import org.bushe.swing.event.EventBus;
+
 /**
  *
  * @author ryan
@@ -213,7 +216,7 @@ public class AuthenticationDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        this.dispose();
+        EventBus.publish(new ExitApplicationMessage());
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
