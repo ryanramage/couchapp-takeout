@@ -28,6 +28,8 @@ import org.ini4j.Wini;
  */
 public class DefaultCouchManager implements LocalCouch{
 
+
+    private static String COUCH_DIR = "couch";
     private int localCouchPort = 5984;
     private CouchDownloader couchDownloader;
     private Unzipper unzipper;
@@ -53,6 +55,8 @@ public class DefaultCouchManager implements LocalCouch{
         if (haveEmbeddedCouch()) {
             String exe = getCouchExe();
             CouchRunner runner = new CouchRunner(exe);
+            runner.setWorkingDir(new File(getWorkingDir(), COUCH_DIR));
+
             new Thread(runner).start();
             // wait for couch
             return waitForEmbeddedCouch();
@@ -72,7 +76,7 @@ public class DefaultCouchManager implements LocalCouch{
             // download couchdb for os
             File couchZip = couchDownloader.downloadLatestCouch(getWorkingDir());
 
-            File couchDir = new File(getWorkingDir(), "couch");
+            File couchDir = new File(getWorkingDir(), COUCH_DIR);
 
             unzipper.doUnzip(couchZip, couchDir);
 
@@ -103,7 +107,7 @@ public class DefaultCouchManager implements LocalCouch{
     
     public boolean haveEmbeddedCouch() {
         File workDir = getWorkingDir();
-        File couchdir = new File(workDir, "couch");
+        File couchdir = new File(workDir, COUCH_DIR);
         if (couchdir.exists()) return true;
         return false;
     }
@@ -132,20 +136,19 @@ public class DefaultCouchManager implements LocalCouch{
 
     private String getCouchExe() {
         File workDir = getWorkingDir();
-        File couchdir = new File(workDir, "couch");
-        File couchdbBinDir = new File(couchdir, "bin");
-        if (!couchdbBinDir.exists() || !couchdbBinDir.isDirectory()) return null;
-        File location = new File(couchdbBinDir, "couchdb");
+        File couchdir = new File(workDir, COUCH_DIR);
         if (SystemUtils.IS_OS_WINDOWS) {
-            location = new File(couchdbBinDir, "couchdb.bat");
+            File couchdbBinDir = new File(couchdir, OSUtils.getCouchBinLocation());
+            return couchdbBinDir.getAbsolutePath();
+        } else {
+            return OSUtils.getCouchBinLocation();
         }
-        return location.getAbsolutePath();
     }
 
     private String getCouchIniLocation() {
         File workDir = getWorkingDir();
-        File couchdir = new File(workDir, "couch");
-        File localIni = new File(couchdir, "etc/couchdb/local.ini");
+        File couchdir = new File(workDir, COUCH_DIR);
+        File localIni = new File(couchdir, OSUtils.getCouchIniLocation());
         return localIni.getAbsolutePath();
     }
 

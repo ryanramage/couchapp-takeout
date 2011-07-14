@@ -5,6 +5,7 @@
 
 package com.github.couchapptakeout;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
@@ -23,10 +24,17 @@ public class CouchRunner implements Runnable,EventSubscriber<ExitApplicationMess
     private boolean running;
     private String couchExe;
 
+    private File workingDir = null;
+
     public CouchRunner(String couchExe) {
         this.couchExe = couchExe;
         
     }
+
+    public void setWorkingDir(File workingDir) {
+        this.workingDir = workingDir;
+    }
+
 
    @Override
     public void onEvent(ExitApplicationMessage t) {
@@ -48,6 +56,7 @@ public class CouchRunner implements Runnable,EventSubscriber<ExitApplicationMess
 
             ProcessBuilder pb = new ProcessBuilder(new String[]{couchExe});
             pb.redirectErrorStream(true);
+            if (workingDir != null) pb.directory(workingDir);
             couchProcess = pb.start();
             running = true;
             couchStream = couchProcess.getInputStream();

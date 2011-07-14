@@ -45,6 +45,9 @@ public class DefaultUnzipper implements Unzipper {
             InputStream in = zfile.getInputStream(entry);
             try {
               copy(in, file);
+              file.setReadable(true);
+              file.setWritable(true);
+              file.setExecutable(true);
             } finally {
               in.close();
             }

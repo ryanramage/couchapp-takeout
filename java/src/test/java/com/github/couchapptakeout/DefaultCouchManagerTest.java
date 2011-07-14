@@ -51,7 +51,7 @@ public class DefaultCouchManagerTest {
         assertTrue(port > 0);
     }
 
-    @Test
+
     public void testInstallCouchDbEmbedded() throws CouchDbInstallException {
         DefaultCouchManager manager = new DefaultCouchManager();
         BasicCouchDownloader bcd = new BasicCouchDownloader("http://couchdb-binary-releases.googlecode.com/svn/trunk");

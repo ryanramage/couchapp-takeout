@@ -26,6 +26,31 @@ public class OSUtils {
         return null;
     }
 
+    public static String getCouchIniLocation() {
+         if (SystemUtils.IS_OS_WINDOWS) {
+            return "etc/couchdb/local.ini";
+        }
+        else if (SystemUtils.IS_OS_MAC_OSX) {
+            return "couchdb_trunk/etc/couchdb/local.ini";
+
+        } else if (SystemUtils.IS_OS_LINUX) {
+            return "couchdb_trunk/etc/couchdb/local.ini";
+        }
+        return null;
+    }
+
+    public static String getCouchBinLocation() {
+        if (SystemUtils.IS_OS_WINDOWS) {
+            return "bin/couchdb/couchdb.bat";
+        }
+        else if (SystemUtils.IS_OS_MAC_OSX) {
+            return "couchdb_trunk/bin/couchdb";
+
+        } else if (SystemUtils.IS_OS_LINUX) {
+            return "couchdb_trunk/bin/couchdb";
+        }
+        return null;
+    }
 
 
 }
