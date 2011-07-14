@@ -33,6 +33,7 @@ public class DefaultCouchManager implements LocalCouch{
     private int localCouchPort = 5984;
     private CouchDownloader couchDownloader;
     private Unzipper unzipper;
+    private int cachedCouchPort = 5984;
 
 
     public void setCouchDownloader(CouchDownloader couchDownloader) {
@@ -47,6 +48,10 @@ public class DefaultCouchManager implements LocalCouch{
         this.localCouchPort = localCouchPort;
     }
 
+    @Override
+    public int getCouchPort() {
+        return cachedCouchPort;
+    }
 
 
     @Override
@@ -127,6 +132,7 @@ public class DefaultCouchManager implements LocalCouch{
     }
 
     public CouchDbInstance getLocalCouchInstance() {
+        this.cachedCouchPort = localCouchPort;
         HttpClient httpClient = new StdHttpClient.Builder()
                                     .host("localhost")
                                     .port(localCouchPort)
@@ -155,6 +161,7 @@ public class DefaultCouchManager implements LocalCouch{
     public CouchDbInstance getEmbeddedCouchInstance() throws IOException {
         String ini = getCouchIniLocation();
         int port = getEmbeddedCouchPort(ini);
+        this.cachedCouchPort = port;
         HttpClient httpClient = new StdHttpClient.Builder()
                                     .host("localhost")
                                     .port(port)

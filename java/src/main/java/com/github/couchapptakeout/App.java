@@ -31,6 +31,7 @@ import org.ektorp.CouchDbInstance;
 import org.ektorp.DbInfo;
 import org.ektorp.ReplicationStatus;
 import org.ektorp.http.HttpClient;
+import org.ektorp.http.HttpResponse;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbConnector;
 import org.ektorp.impl.StdCouchDbInstance;
@@ -51,6 +52,8 @@ public class App {
     LocalCouch localCouchManager;
     AuthenticationDialog dialog;
     LoadingDialog loadingDialog;
+
+    String applicationUrl;
 
 
     public App(String src_host, String src_db, int src_port, String src_username) {
@@ -148,10 +151,18 @@ public class App {
     }
 
     protected void ready(CouchDbConnector db) {
+
+        applicationUrl = "http://localhost:" + localCouchManager.getCouchPort() + "/" + db.getDatabaseName() + "/_design/app/index.html";
+
         // now setup the tray
         List menuItems = createMenu();
         Tray tray = new Tray("/plate.png", "App on ", menuItems);
-        db.getDatabaseName();
+        
+        try {
+            showUrl(new URL(applicationUrl));
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 
@@ -307,8 +318,11 @@ public class App {
             public void actionPerformed(ActionEvent e) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-
-                        //showUrl(new URL("http://" + couchHost + ":" + couchPort + "/" + wikidName + "/dashboard.html" ));
+                        try {
+                            showUrl(new URL(applicationUrl));
+                        } catch (MalformedURLException ex) {
+                            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                        }
 
                     }
                 });

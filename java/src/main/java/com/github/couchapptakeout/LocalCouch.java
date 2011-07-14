@@ -17,5 +17,6 @@ public interface LocalCouch {
     CouchDbInstance getCouchInstance() throws CouchDBNotFoundException;
     CouchDbConnector getCouchConnector(String name, CouchDbInstance instance);
     void installCouchDbEmbedded() throws CouchDbInstallException;
+    int getCouchPort();
     
 }

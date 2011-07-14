@@ -41,4 +41,9 @@ public class LocalCouchMock implements LocalCouch  {
         return  new StdCouchDbConnector(name, instance);
     }
 
+    @Override
+    public int getCouchPort() {
+        return 5984;
+    }
+
 }
