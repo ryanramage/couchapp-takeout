@@ -11,7 +11,9 @@ import java.awt.Desktop;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,8 @@ import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventServiceLocator;
 import org.bushe.swing.event.EventSubscriber;
 import org.bushe.swing.event.ThreadSafeEventService;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.CouchDbConnector;
@@ -49,7 +53,7 @@ public class App {
     String src_username;
     String src_password;
     String localDbName;
-    boolean sync = false;
+    boolean sync = true;
     LocalCouch localCouchManager;
     AuthenticationDialog dialog;
     LoadingDialog loadingDialog;
@@ -131,8 +135,9 @@ public class App {
             int totalSteps = 3;
 
             if (haveToInstallCouch) {
+                step++;
                 totalSteps = 4; // one extra step
-                EventBus.publish(new LoadingMessage(step++, totalSteps, "Installing DB...", 0, 0, "Starting..." ));
+                EventBus.publish(new LoadingMessage(step, totalSteps, "Installing DB...", 0, 0, "Starting..." ));
                 localCouchManager.installCouchDbEmbedded();
 
             }
@@ -142,28 +147,99 @@ public class App {
             db.createDatabaseIfNotExists();
 
            
-            // replicate
+            // init one time replicate
             EventBus.publish(new LoadingMessage(step, totalSteps, "Downloading Data", 0, 0, "Copy data from " + getSrcReplicationUrl(false) ));            
-            String src_fullurl = getSrcReplicationUrl(true);
-            ReplicationStatus status = db.replicateFrom(src_fullurl);
-            //should check status.isOk();
+            setupReplication(instance, db);
 
-            if (sync) {
-                // create a continous replication
-                CouchDbConnector rep_db = localCouchManager.getCouchConnector("_replicator", instance);
-                ObjectMapper mapper = new ObjectMapper();
-                ObjectNode rep_info = mapper.createObjectNode();
-                rep_info.put("_id", "couchapp-takout-" + localDbName);
-                rep_info.put("source", src_fullurl);
-                rep_info.put("target", localDbName);
-                rep_info.put("continuous", true);
-                rep_db.create(rep_info);
-            }
+            // start sync
+            startSync(instance);
 
             EventBus.publish(new LoadingMessage(totalSteps, totalSteps, "Downloading Data", 4, 4, "Complete!"));
             hideLoadingDialog();
             return db;
     }
+
+    protected void setupReplication(CouchDbInstance instance, CouchDbConnector db) {
+            String src_fullurl = getSrcReplicationUrl(true);
+
+
+            try {
+                // on large dbs, this times out
+                // broken waiting for ektorp to fix!!!
+                // We need to catch the error, and poll the couch
+                ReplicationStatus status = db.replicateFrom(src_fullurl);
+            } catch (Exception socketTimeoutException)  {
+                //socketTimeoutException.printStackTrace();
+                 System.out.println("REPLICATION HACK");
+                waitForReplicationToFinishHack(instance);
+                System.out.println("DONE");
+               
+                
+            }
+            //should check status.isOk();
+    }
+
+
+    protected void waitForReplicationToFinishHack(CouchDbInstance instance) {
+
+        boolean replicationComplete = false;
+
+        while(!replicationComplete) {
+            // need to check the active tasks
+            HttpResponse response = instance.getConnection().get("/_active_tasks");
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                JsonNode results = mapper.readTree(response.getContent());
+                replicationComplete = true;
+                for (JsonNode element : results) {
+                    if ("Replication".equals(element.get("type").getTextValue())) {
+                        String task = element.get("task").getTextValue();
+
+                        // this is a BIG assumption for now. We are assuming that we
+                        // we are the only one using this db.
+
+                        if (!task.contains("couchapp-takeout-")) {
+                            replicationComplete = false; // sorry, still going
+                        }
+                    }
+                }
+
+                Thread.sleep(1000);
+
+            } catch (Exception ex) {
+                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+
+
+
+    protected void startSync(CouchDbInstance instance) {
+        if (sync) {
+            String src_fullurl = getSrcReplicationUrl(true);
+            
+            // create a continous replication
+            CouchDbConnector rep_db = localCouchManager.getCouchConnector("_replicator", instance);
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode pull = mapper.createObjectNode();
+            pull.put("_id", "couchapp-takeout-" + localDbName + "-pull");
+            pull.put("source", src_fullurl);
+            pull.put("target", localDbName);
+            pull.put("continuous", true);
+            rep_db.create(pull);
+
+            // other direction
+            ObjectNode push = mapper.createObjectNode();
+            push.put("_id", "couchapp-takeout-" + localDbName + "-push");
+            push.put("target", src_fullurl);
+            push.put("source", localDbName);
+            push.put("continuous", true);
+            rep_db.create(push);
+
+        }
+    }
+
 
     protected void ready(CouchDbConnector db) {
 
@@ -319,6 +395,10 @@ public class App {
 
     private static boolean errorAndAbort(Exception ie) {
         // show the user the error and abort
+        //custom title, warning icon
+        JOptionPane.showMessageDialog(null,"Sorry, something bad happened\n. Shutting down....buuuu\n. Message: " + ie.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
+
+        EventBus.publish(new ExitApplicationMessage() );
         return false;
     }
 

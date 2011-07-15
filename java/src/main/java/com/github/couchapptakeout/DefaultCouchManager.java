@@ -58,11 +58,17 @@ public class DefaultCouchManager implements LocalCouch{
     public CouchDbInstance getCouchInstance() throws CouchDBNotFoundException {
         // check if we already have a embedded couch setup, if yes startEmbeded
         if (haveEmbeddedCouch()) {
+
+            if (isLocalCouchRunning()) {
+                return getLocalCouchInstance();
+            }
+
             String exe = getCouchExe();
             CouchRunner runner = new CouchRunner(exe);
             if (!SystemUtils.IS_OS_WINDOWS) {
                 runner.setWorkingDir(new File(getWorkingDir(), COUCH_DIR));
             }
+            
             new Thread(runner).start();
             // wait for couch
             return waitForEmbeddedCouch();
@@ -93,6 +99,7 @@ public class DefaultCouchManager implements LocalCouch{
             setEmbeddedCouchPort(iniFile, port);
         } catch (IOException ex) {
             Logger.getLogger(DefaultCouchManager.class.getName()).log(Level.SEVERE, null, ex);
+            throw new CouchDbInstallException(ex.getMessage());
         }
     }
 

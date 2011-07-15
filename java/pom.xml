@@ -64,7 +64,7 @@
                   <!-- SIGNING -->
                   <!-- defining this will automatically sign the jar and its dependencies -->
                   <sign>
-                    <keystore>C:\rtemp\keystore</keystore>
+                    <keystore>../../keystore</keystore>
                     <keypass>m2m2m2</keypass>
                     <storepass>m2m2m2</storepass>
                     <!--sigfile>m2m2m2</sigfile-->
@@ -81,7 +81,7 @@
                     <verify>true</verify>
 
                     <keystoreConfig>
-                      <delete>true</delete>
+                      <delete>false</delete>
                       <gen>false</gen>
                     </keystoreConfig>
 

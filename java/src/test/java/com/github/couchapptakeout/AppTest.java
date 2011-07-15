@@ -5,6 +5,9 @@
 
 package com.github.couchapptakeout;
 
+import org.ektorp.impl.StdCouchDbInstance;
+import org.ektorp.http.StdHttpClient;
+import org.ektorp.http.HttpClient;
 import org.junit.Before;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
@@ -57,10 +60,27 @@ public class AppTest {
         assertEquals("http://choose.iriscouch.com:81/choose", result);
     }
 
+
+    // Needs to be an integration test
+    public void testStartSync() {
+        App app2 = new App("localhost", "choose", 5984, null);
+
+        HttpClient httpClient = new StdHttpClient.Builder()
+                            .host("localhost")
+                            .port(5984)
+                            .build();
+        CouchDbInstance couch = new StdCouchDbInstance(httpClient);
+        CouchDbConnector connector = couch.createConnector("test-choose", true);
+        app2.setupReplication(couch, connector);
+        
+    }
+
+
+
     /**
      * Test of loadNeeded method, of class App.
      */
-    @Test
+
     public void testLoadNeededNoPassword() throws Exception {
         App app = new App("choose.irisCouch.com", "choose", 5984, null);
         setupMocksFor(app);
