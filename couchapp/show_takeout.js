@@ -16,7 +16,7 @@ function(doc, req) {
 	result += ' <offline-allowed/> ';
 	result += ' <shortcut online=\"false\">';
 	result += '   <desktop/>'; 
-	result += '   <menu submenu=\"'+cur.title+'\"/>';
+	result += '   <menu submenu=\"'+cur.appName+'\"/>';
 	result += ' </shortcut>';
 	result += '</information>';
 	result += '  <security><all-permissions/></security>';
