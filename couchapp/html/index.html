@@ -3,10 +3,14 @@
 <html>
 <head>
     <title>Takeout!</title>
-    <script type="text/javascript" src="jquery-1.6.2.min.js" />
+    <script type="text/javascript" src="jquery-1.6.2.min.js" ></script>
+    <script type="text/javascript" src="takeout.js" ></script>
     <script type="text/javascript">
+        $(function() {
+            $('#takeout').takeout({linkText : "Download", localText : "Installed"});
+        });
 
-
+        
     </script>
 
 
@@ -15,8 +19,18 @@
 
     <h2>Takeout</h2>
 
-
+    <h3>Example 1 - As a link</h3>
     <a href="_show/takeout.jnlp">Take out!</a>
+
+    <h3>Example 2 - Changes based on running remote or local.</h3>
+    <p>
+        On the remote app (where you are installing from) this will be a button.
+        On the local app this will just be text. It  would confuse the user if they see the button again on the local app!.
+    </p>
+
+    <div id="takeout">
+        
+    </div>
 
 
 </body>

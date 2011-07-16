@@ -23,10 +23,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="index.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/html/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="0" selection-start="254" selection-end="254" vertical-scroll-proportion="0.13636364">
+            <state line="35" column="7" selection-start="933" selection-end="933" vertical-scroll-proportion="-20.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="takeout.js" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/html/takeout.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="30" column="31" selection-start="727" selection-end="727" vertical-scroll-proportion="0.49655172">
               <folding />
             </state>
           </provider>
@@ -65,6 +74,7 @@
         <option value="$PROJECT_DIR$/reupholster.json" />
         <option value="$PROJECT_DIR$/_design-app.json" />
         <option value="$PROJECT_DIR$/html/index.html" />
+        <option value="$PROJECT_DIR$/html/takeout.js" />
       </list>
     </option>
   </component>
@@ -240,7 +250,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/html/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="0" selection-start="254" selection-end="254" vertical-scroll-proportion="0.13636364">
+        <state line="35" column="7" selection-start="933" selection-end="933" vertical-scroll-proportion="-20.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/html/takeout.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="30" column="31" selection-start="727" selection-end="727" vertical-scroll-proportion="0.49655172">
           <folding />
         </state>
       </provider>
