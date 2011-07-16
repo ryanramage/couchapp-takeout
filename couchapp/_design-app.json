@@ -31,7 +31,7 @@
       "vendor"   : "Ecko-it",
       "homepage" : "http://eckoit.com",
       "description" : "A great couchapp that does amazing stuff",
-      "localStartUrl" : "_design/app/index.html",
+      "localStartUrl" : "_design/takeout/index.html",
 
       "advanced" : {
             "syncType" : "bi-directional",

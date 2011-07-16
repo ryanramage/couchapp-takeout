@@ -1,1 +1,1 @@
-{"couch":{"host":"localhost","port":6984,"db":"grand_design_unstable", "username" : "admin", "password" : "admin"}, "designDocName" : "_design/takeout"}
+{"couch":{"host":"localhost","port":6984,"db":"takeout", "username" : "admin", "password" : "admin"}, "designDocName" : "_design/takeout"}
