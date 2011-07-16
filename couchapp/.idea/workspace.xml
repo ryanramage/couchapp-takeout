@@ -26,7 +26,7 @@
       <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/html/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="7" selection-start="933" selection-end="933" vertical-scroll-proportion="-20.0">
+            <state line="3" column="0" selection-start="118" selection-end="933" vertical-scroll-proportion="-1.7142857">
               <folding />
             </state>
           </provider>
@@ -53,7 +53,7 @@
       <file leaf-file-name="_design-app.json" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/_design-app.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="27" column="17" selection-start="667" selection-end="667" vertical-scroll-proportion="0.4550562">
+            <state line="25" column="13" selection-start="642" selection-end="642" vertical-scroll-proportion="0.4213483">
               <folding />
             </state>
           </provider>
@@ -234,13 +234,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/html/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="7" selection-start="933" selection-end="933" vertical-scroll-proportion="-20.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/html/takeout.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="29" column="27" selection-start="695" selection-end="695" vertical-scroll-proportion="0.0">
@@ -255,9 +248,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/html/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="0" selection-start="118" selection-end="933" vertical-scroll-proportion="-1.7142857">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/_design-app.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="17" selection-start="667" selection-end="667" vertical-scroll-proportion="0.4550562">
+        <state line="25" column="13" selection-start="642" selection-end="642" vertical-scroll-proportion="0.4213483">
           <folding />
         </state>
       </provider>
