@@ -23,10 +23,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="index.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/html/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="0" selection-start="239" selection-end="239" vertical-scroll-proportion="-6.857143">
+            <state line="8" column="0" selection-start="254" selection-end="254" vertical-scroll-proportion="0.13636364">
               <folding />
             </state>
           </provider>
@@ -41,10 +41,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="_design-app.json" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="_design-app.json" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/_design-app.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="41" column="6" selection-start="1087" selection-end="1087" vertical-scroll-proportion="0.69101125">
+            <state line="34" column="0" selection-start="885" selection-end="885" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -61,10 +61,10 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/_design-takeout.json" />
-        <option value="$PROJECT_DIR$/html/index.html" />
         <option value="$PROJECT_DIR$/show_takeout.js" />
         <option value="$PROJECT_DIR$/reupholster.json" />
         <option value="$PROJECT_DIR$/_design-app.json" />
+        <option value="$PROJECT_DIR$/html/index.html" />
       </list>
     </option>
   </component>
@@ -224,9 +224,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/html/index.html">
+    <entry file="file://$PROJECT_DIR$/_design-app.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="0" selection-start="239" selection-end="239" vertical-scroll-proportion="-6.857143">
+        <state line="34" column="0" selection-start="885" selection-end="885" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -238,9 +238,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/_design-app.json">
+    <entry file="file://$PROJECT_DIR$/html/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="6" selection-start="1087" selection-end="1087" vertical-scroll-proportion="0.69101125">
+        <state line="8" column="0" selection-start="254" selection-end="254" vertical-scroll-proportion="0.13636364">
           <folding />
         </state>
       </provider>

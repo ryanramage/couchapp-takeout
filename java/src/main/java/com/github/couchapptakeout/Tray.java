@@ -43,15 +43,18 @@ public class Tray   {
         // for unit tests
     }
 
-    public Tray(String iconLocation, String appName,  List popupItems) {
-
-        this.baseImage = createImage(iconLocation);
+    public Tray(ImageIcon icon, String appName,  List popupItems) {
+        if (icon == null) {
+            baseImage = createImage("/plate.png");
+        } else {
+            this.baseImage = icon.getImage();
+        }
         this.appName = appName;
         SystemTray tray = SystemTray.getSystemTray();
         if (!SystemTray.isSupported()) {
             throw new RuntimeException("Tray is not supported");
         }
-        trayIcon = new TrayIcon(createImage(iconLocation), appName);
+        trayIcon = new TrayIcon(baseImage, appName);
         final PopupMenu popup = createMenu(popupItems);
 
         trayIcon.setPopupMenu(popup);
@@ -107,7 +110,7 @@ public class Tray   {
             @Override
             public void onEvent(TrayMessage t) {
                 System.out.println("Tray Message: " + t.getMessage());
-                trayIcon.displayMessage("EckoIt", t.getMessage(), t.getType());
+                trayIcon.displayMessage(appName, t.getMessage(), t.getType());
             }
         });
 

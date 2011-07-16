@@ -9,6 +9,7 @@ import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.LoadingDialog;
 import java.awt.Desktop;
 import java.awt.MenuItem;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -59,6 +61,9 @@ public class App {
     LoadingDialog loadingDialog;
 
     String applicationUrl;
+    ImageIcon appIcon;
+    boolean hadToLoad = false;
+    CouchDbInstance couchDbInstance;
 
 
     public App(String src_host, String src_db, int src_port, String src_username) {
@@ -85,35 +90,23 @@ public class App {
     protected String createLocalDbName() {
         StringBuilder builder = new StringBuilder();
         builder.append(src_db);
-        builder.append("(");
+        builder.append("-");
         String cleanHost = src_host.replaceAll("\\.", "_").toLowerCase();
         builder.append(cleanHost);
         if (src_port > 0 && src_port != 80) {
             builder.append("-").append(src_port);
         }
-        builder.append(")");
+        builder.append("");
         return builder.toString();
     }
 
 
     public void start() throws Exception {
         // always listen for the exit application message
-        EventBus.subscribeStrongly(ExitApplicationMessage.class, new EventSubscriber<ExitApplicationMessage>() {
-            @Override
-            public void onEvent(ExitApplicationMessage t) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                System.exit(0);
-            }
-        });
-
 
         try {
-            CouchDbInstance instance = localCouchManager.getCouchInstance();
-            CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, instance);
+            couchDbInstance = localCouchManager.getCouchInstance();
+            CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, couchDbInstance);
             DbInfo info = db.getDbInfo();
             ready(db);
         } catch(CouchDBNotFoundException nfe) {
@@ -125,7 +118,10 @@ public class App {
 
 
     protected CouchDbConnector loadNeeded( boolean haveToInstallCouch ) throws CouchDbInstallException, CouchDBNotFoundException {
+            hadToLoad = true;
+
             // we need to prompt for credentials if there is a username
+
             if (StringUtils.isNotBlank(src_username)) {
                 promptForCredientials();
             }
@@ -137,22 +133,21 @@ public class App {
             if (haveToInstallCouch) {
                 step++;
                 totalSteps = 4; // one extra step
-                EventBus.publish(new LoadingMessage(step, totalSteps, "Installing DB...", 0, 0, "Starting..." ));
+                EventBus.publish(new LoadingMessage(step++, totalSteps, "Installing DB...", 0, 0, "Starting..." ));
                 localCouchManager.installCouchDbEmbedded();
 
             }
 
-            CouchDbInstance instance = localCouchManager.getCouchInstance();
-            CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, instance);
+            couchDbInstance = localCouchManager.getCouchInstance();
+            CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, couchDbInstance);
             db.createDatabaseIfNotExists();
 
            
             // init one time replicate
-            EventBus.publish(new LoadingMessage(step, totalSteps, "Downloading Data", 0, 0, "Copy data from " + getSrcReplicationUrl(false) ));            
-            setupReplication(instance, db);
+            EventBus.publish(new LoadingMessage(step++, totalSteps, "Downloading Data", 0, 0, "Copy data from " + getSrcReplicationUrl(false) ));
+            setupReplication(couchDbInstance, db);
 
-            // start sync
-            startSync(instance);
+
 
             EventBus.publish(new LoadingMessage(totalSteps, totalSteps, "Downloading Data", 4, 4, "Complete!"));
             hideLoadingDialog();
@@ -215,20 +210,27 @@ public class App {
 
 
 
-    protected void startSync(CouchDbInstance instance) {
-        if (sync) {
-            String src_fullurl = getSrcReplicationUrl(true);
+    protected void startSync(CouchDbConnector localdb, CouchDbInstance instance, String syncType) {
+
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Sync Type: {0}", syncType);
+
+        if (StringUtils.equalsIgnoreCase(syncType, "none")) return;
+        String src_fullurl = getSrcReplicationUrl(true); 
+
+        // create a continous replication
+        CouchDbConnector rep_db = localCouchManager.getCouchConnector("_replicator", instance);
+
+        ObjectMapper mapper = new ObjectMapper();
+        if (StringUtils.equalsIgnoreCase(syncType, "bi-directional") || StringUtils.equalsIgnoreCase(syncType, "pull")) {
             
-            // create a continous replication
-            CouchDbConnector rep_db = localCouchManager.getCouchConnector("_replicator", instance);
-            ObjectMapper mapper = new ObjectMapper();
             ObjectNode pull = mapper.createObjectNode();
             pull.put("_id", "couchapp-takeout-" + localDbName + "-pull");
             pull.put("source", src_fullurl);
             pull.put("target", localDbName);
             pull.put("continuous", true);
             rep_db.create(pull);
-
+        }
+        if (StringUtils.equalsIgnoreCase(syncType, "bi-directional") || StringUtils.equalsIgnoreCase(syncType, "push")) {
             // other direction
             ObjectNode push = mapper.createObjectNode();
             push.put("_id", "couchapp-takeout-" + localDbName + "-push");
@@ -236,24 +238,91 @@ public class App {
             push.put("source", localDbName);
             push.put("continuous", true);
             rep_db.create(push);
-
         }
+
     }
 
 
     protected void ready(CouchDbConnector db) {
 
-        applicationUrl = "http://localhost:" + localCouchManager.getCouchPort() + "/" + db.getDatabaseName() + "/_design/app/index.html";
+       
+
+        // get the main design doc
+        JsonNode design = db.get(JsonNode.class, "_design/takeout");
+        String appName = design.get("takeout").get("appName").getTextValue();
+        String localStartUrl = "/_design/app/index.html";
+
+
+
+        try {
+            localStartUrl = design.get("takeout").get("localStartUrl").getTextValue();
+            if (! localStartUrl.startsWith("/")) localStartUrl = "/" + localStartUrl;
+        } catch (Exception ex) {
+            Logger.getLogger(App.class.getName()).log(Level.WARNING, "Could not find localStartUrl", ex);
+        }
+
+        applicationUrl = "http://localhost:" + localCouchManager.getCouchPort() + "/" + db.getDatabaseName() + localStartUrl;
+
+
+        if (appIcon == null) {
+            String iconUrl =  "http://localhost:" + localCouchManager.getCouchPort() + "/" + db.getDatabaseName() + "/_design/takeout/icon.png";
+            Logger.getLogger(App.class.getName()).log(Level.INFO, iconUrl);
+            try {
+                appIcon = createImage(iconUrl);
+            } catch (Exception ex) {
+                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
 
         // now setup the tray
-        List menuItems = createMenu();
-        Tray tray = new Tray("/plate.png", "App on ", menuItems);
-        
+        List menuItems = createMenu(appName);
+        Tray tray = new Tray(appIcon, appName, menuItems);
+
         try {
             showUrl(new URL(applicationUrl));
-        } catch (MalformedURLException ex) {
+
+            if (hadToLoad) {
+                // wait a bit and show a message from the tray.
+                Thread.sleep(2000);
+                EventBus.publish(new TrayMessage(appName, "Load Complete! This icon helps you control the application.", MessageType.INFO));
+            }
+
+
+        } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+
+        //lastly, if had to load, setup replication
+        if (hadToLoad) {
+            String syncType = "bi-directional";
+            try {
+                syncType = design.get("takeout").get("advanced").get("syncType").getTextValue();
+
+            } catch (Exception ex) {
+                Logger.getLogger(App.class.getName()).log(Level.WARNING, "Could not find localStartUrl", ex);
+            }
+
+            startSync(db, couchDbInstance, syncType);
+
+            // put a local doc to so the app can query to see if it is running local
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                ObjectNode takeoutLocal = mapper.createObjectNode();
+                takeoutLocal.put("_id", "_local/takeout");
+                takeoutLocal.put("source", getSrcReplicationUrl(false));
+                takeoutLocal.put("syncType", syncType);
+                couchDbInstance.getConnection().put("/" + db.getDatabaseName() + "/_local/takeout", takeoutLocal.toString());
+            } catch (Exception ex) {
+                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+
+        }
+
+
+
     }
 
 
@@ -263,6 +332,7 @@ public class App {
                 if (loadingDialog == null) {
                     loadingDialog = new LoadingDialog(new javax.swing.JFrame(), true);
                 }
+                if (appIcon != null) loadingDialog.setIconImage(appIcon.getImage());
                 loadingDialog.setVisible(true);
             }
         });
@@ -294,6 +364,7 @@ public class App {
 
     private void promptForCredientials() {
         dialog = new AuthenticationDialog(new javax.swing.JFrame(), true);
+        if (appIcon != null) loadingDialog.setIconImage(appIcon.getImage());
         dialog.setSrcUrl(getSrcReplicationUrl(false));
         dialog.setUsername(src_username);
 
@@ -331,7 +402,23 @@ public class App {
 
         return builder.toString();
     }
-    
+    protected String getSrcIconUrl() {
+      String protocol = "http";
+
+        StringBuilder builder = new StringBuilder(protocol);
+        builder.append("://");
+        builder.append(src_host);
+        int couchPort = src_port;
+        if (couchPort <= 0) couchPort = 5984;
+
+        builder.append(":").append(couchPort);
+
+        builder.append("/");
+        builder.append(src_db);
+        builder.append("/_design/takeout/icon.png");
+
+        return builder.toString();
+    }
     public CouchDbConnector getSrcConnector() {
         int couchPort = src_port;
         if (couchPort <= 0) couchPort = 5984;
@@ -404,16 +491,16 @@ public class App {
 
 
     // menu actions.
-    private List createMenu() {
+    private List createMenu(String appName) {
         List menuItems = new ArrayList();
-        menuItems.add(createSiteMenuItem());
+        menuItems.add(createSiteMenuItem(appName));
         menuItems.add(Tray.MENU_SEPERATOR);
         menuItems.add(createExitMenuItem());
 
         return menuItems;
     }
-    protected MenuItem createSiteMenuItem() {
-        MenuItem item = new MenuItem("Open Application");
+    protected MenuItem createSiteMenuItem(String appName) {
+        MenuItem item = new MenuItem("Open " + appName);
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -463,6 +550,14 @@ public class App {
         }
     }
 
+
+
+    //Obtain the image URL
+    protected static ImageIcon createImage(String url) throws MalformedURLException {
+        URL imageURL = new URL(url);
+        return new ImageIcon(imageURL);
+    }
+
     // used for testing...
     protected AuthenticationDialog getAuthenticationDialog() {
         return dialog;
@@ -470,6 +565,13 @@ public class App {
 
     protected LoadingDialog getLoadingDialog() {
         return loadingDialog;
+    }
+
+    private void setIconForDialogs() {
+        String url = getSrcIconUrl();
+        try {
+            appIcon = createImage(url);
+        } catch (Exception e) {}
     }
 
 

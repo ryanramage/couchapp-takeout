@@ -36,21 +36,21 @@ public class AppTest {
     public void createLocalDatabaseNameTest() {
         App app2 = new App("choose.iriscouch.com", "choose", 80, null);
         String localDbName = app2.createLocalDbName();
-        assertEquals("choose(choose_iriscouch_com)", localDbName);
+        assertEquals("choose-choose_iriscouch_com", localDbName);
     }
 
     @Test
     public void createLocalDatabaseNameTestPort() {
         App app2 = new App("choose.iriscouch.com", "choose", 5984, null);
         String localDbName = app2.createLocalDbName();
-        assertEquals("choose(choose_iriscouch_com-5984)", localDbName);
+        assertEquals("choose-choose_iriscouch_com-5984", localDbName);
     }
 
     @Test
     public void createLocalDatabaseNameLowerCase() {
         App app2 = new App("choose.irisCouch.com", "choose", 5984, null);
         String localDbName = app2.createLocalDbName();
-        assertEquals("choose(choose_iriscouch_com-5984)", localDbName);
+        assertEquals("choose-choose_iriscouch_com-5984", localDbName);
     }
 
     @Test

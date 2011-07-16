@@ -43,6 +43,7 @@ public class CouchRunner implements Runnable,EventSubscriber<ExitApplicationMess
         if (couchProcess != null) {
             couchProcess.destroy();
         }
+        System.exit(0);
     }
 
     @Override
@@ -69,6 +70,7 @@ public class CouchRunner implements Runnable,EventSubscriber<ExitApplicationMess
             Logger.getLogger(CouchRunner.class.getName()).log(Level.INFO, "Couch Process Disconnected.");
             couchProcess.destroy();
             couchProcess = null;
+
         } catch (IOException ex) {
             Logger.getLogger(CouchRunner.class.getName()).log(Level.SEVERE, null, ex);
         }
