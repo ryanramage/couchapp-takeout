@@ -8,16 +8,16 @@ Do you want to provide a way for a user to liberate their data?
 
 It is incredibly easy to get it into your couchapp, and it can be branded to with your apps name and icons. Here is how to get started:
 
-Replicate Couchapp-Takeout into your application
--------------------------------------------------
+## Replicate Couchapp-Takeout into your application
+
 replicate this database into your couchapp:
 http://ecko-it.couchone.com/takeout
 
 It has one design doc named _design/takeout so make sure this does not conflict with an existing doc in your db.
 
 
-Configure Couchapp-Takeout 
----------------------------
+## Configure Couchapp-Takeout 
+
 Edit the design document _design/takeout in your database. Here are the settings to change:
 
 ```json
@@ -47,13 +47,13 @@ You could have a sepereate design doc like _design/installed/index.html
  *  'push' not sure when this would be usefull, but for completeness.
  *  'none' no replication is started.
 
-Brand Couchapp-Takeout 
----------------------------
+## Brand Couchapp-Takeout 
+
 Replace the two attachements on the design doc called logo.png and splash.png with your own logo and splash image. Keep the names exactly the same.
 
 
-Add a link from your application
---------------------------------
+## Add a link from your application
+
 Now you need a link in your application called 'install' or 'download' that launches the installer. Here is how to do it.
 
 Import the takeout jquery plugin into your page (make sure you have jquery as well).
@@ -86,8 +86,8 @@ Here is some example html:
 ```
 
 
-Try It Out!
---------------------------------
+## Try It Out!
+
 
 Go to your application's page where you have the link to the installer. Click the link and see what happens!
 
@@ -98,8 +98,8 @@ Ok, also a few things
  *  If you have a couch installed locally on port 5984 couchapp-desktop will just reuse that db. If you to see the full install, turn off couch on that port. A new couch will be installed on a random port.
 
 
-The Desktop
-------------
+## The Desktop
+
 Couchapp-desktop will give a desktop icon for the application, and when running it will appear in the system tray. There is a simple menu on the tray icon to open the start url, and close the application.
 
 
