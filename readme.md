@@ -1,4 +1,4 @@
-Couchapp Takeout provides couchapps with a desktop experience. 
+Couchapp Takeout provides couchapps with an installer and desktop experience. 
 
 From one link in your couchapp, it will install all the pieces on an end users computer, to run it locally. It solves these problems:
 
@@ -100,7 +100,7 @@ Ok, also a few things
 * If you have a couch installed locally on port 5984 couchapp-desktop will just reuse that db. If you to see the full install, turn off couch on that port. A new couch will be installed on a random port.
 
 
-If you want to see it on an existing application, this links on this page will install Couch Tasks on your computer:
+If you want to see it on an existing application, the links on this page will install 'Couch Tasks' on your computer:
 
 http://ecko-it.couchone.com:5984/couchtasks/_design/takeout/index.html
 
