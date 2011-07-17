@@ -100,6 +100,11 @@ Ok, also a few things
 * If you have a couch installed locally on port 5984 couchapp-desktop will just reuse that db. If you to see the full install, turn off couch on that port. A new couch will be installed on a random port.
 
 
+If you want to see it on an existing application, this links on this page will install Couch Tasks on your computer:
+
+http://ecko-it.couchone.com:5984/couchtasks/_design/takeout/index.html
+
+
 ## The Desktop
 
 Couchapp-desktop will give a desktop icon for the application, and when running it will appear in the system tray. There is a simple menu on the tray icon to open the start url, and close the application.
