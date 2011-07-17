@@ -42,10 +42,11 @@ You probably want something like _design/app/index.html   But maybe you want a d
 You could have a sepereate design doc like _design/installed/index.html
 
 *syncType* is the type of continuous replication that is started on the users machine to the couchdb it was launched from. Valid values are:
- *  'bi-directional' useful for online/offline style applications. The perfect fit for couch!
- *  'pull' useful for when you dont want to host user data, but want to distrubte your couchapp to end users. Allows them to receive updates to the couchapp automatically.
- *  'push' not sure when this would be usefull, but for completeness.
- *  'none' no replication is started.
+
+* 'bi-directional' useful for online/offline style applications. The perfect fit for couch!
+* 'pull' useful for when you dont want to host user data, but want to distrubte your couchapp to end users. Allows them to receive updates to the couchapp automatically.
+* 'push' not sure when this would be usefull, but for completeness.
+* 'none' no replication is started.
 
 ## Brand Couchapp-Takeout 
 
@@ -92,10 +93,11 @@ Here is some example html:
 Go to your application's page where you have the link to the installer. Click the link and see what happens!
 
 Ok, also a few things
- *  End users will need to have java on their machine. All mac osx meet this requirement, and most windows users will have it installed.
- *  Currently we only have couch binaries for windows and mac. Other operating systems to come.
- *  Note for Google Chrome. By default Chrome will list the download on the bottom of the page, and to the right of the filename is a small drop down arrow, click it. Select 'Always open files of this type'.
- *  If you have a couch installed locally on port 5984 couchapp-desktop will just reuse that db. If you to see the full install, turn off couch on that port. A new couch will be installed on a random port.
+
+* End users will need to have java on their machine. All mac osx meet this requirement, and most windows users will have it installed.
+* Currently we only have couch binaries for windows and mac. Other operating systems to come.
+* Note for Google Chrome. By default Chrome will list the download on the bottom of the page, and to the right of the filename is a small drop down arrow, click it. Select 'Always open files of this type'.
+* If you have a couch installed locally on port 5984 couchapp-desktop will just reuse that db. If you to see the full install, turn off couch on that port. A new couch will be installed on a random port.
 
 
 ## The Desktop
