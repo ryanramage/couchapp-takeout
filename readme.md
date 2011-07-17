@@ -65,7 +65,7 @@ Here is some example html:
 ```html
 <head>
     <script type="text/javascript" src="jquery-1.6.2.min.js" ></script>
-    <script type="text/javascript" src="takeout.js" ></script>
+    <script type="text/javascript" src="_design/takeout/takeout.js" ></script>
     <script type="text/javascript">
         $(function() {
             $('#takeout').takeout({linkText : "Download", localText : "Installed"});
