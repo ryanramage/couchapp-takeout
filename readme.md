@@ -113,7 +113,7 @@ Couchapp-desktop will give a desktop icon for the application, and when running 
 
 ## License
 
-This project is under an [Apache 2.0 license](blob/master/LICENSE.txt) .
+This project is under an [Apache 2.0 license](https://github.com/ryanramage/couchapp-takeout/blob/master/LICENSE.txt) .
 
 
 
