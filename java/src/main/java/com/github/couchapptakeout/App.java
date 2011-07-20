@@ -7,8 +7,11 @@ package com.github.couchapptakeout;
 
 import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.LoadingDialog;
+import com.github.couchapptakeout.ui.Splash;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.MenuItem;
+import java.awt.Toolkit;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,6 +52,7 @@ import org.ektorp.impl.StdCouchDbInstance;
  */
 public class App {
 
+    String appName;
     String src_host;
     String src_db;
     int src_port;
@@ -57,16 +61,19 @@ public class App {
     String localDbName;
     boolean sync = true;
     LocalCouch localCouchManager;
+    Splash splash;
     AuthenticationDialog dialog;
-    LoadingDialog loadingDialog;
+
 
     String applicationUrl;
     ImageIcon appIcon;
+    ImageIcon splashIcon;
     boolean hadToLoad = false;
     CouchDbInstance couchDbInstance;
 
 
-    public App(String src_host, String src_db, int src_port, String src_username) {
+    public App(String appName, String src_host, String src_db, int src_port, String src_username) {
+        this.appName = appName;
         this.src_host = src_host;
         this.src_db = src_db;
         this.src_port = src_port;
@@ -103,11 +110,13 @@ public class App {
 
     public void start() throws Exception {
         // always listen for the exit application message
-
+        
         try {
+            showSplashDialog();
             couchDbInstance = localCouchManager.getCouchInstance();
             CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, couchDbInstance);
             DbInfo info = db.getDbInfo();
+            
             ready(db);
         } catch(CouchDBNotFoundException nfe) {
             ready(loadNeeded(true));
@@ -119,13 +128,14 @@ public class App {
 
     protected CouchDbConnector loadNeeded( boolean haveToInstallCouch ) throws CouchDbInstallException, CouchDBNotFoundException {
             hadToLoad = true;
+            
 
             // we need to prompt for credentials if there is a username
 
             if (StringUtils.isNotBlank(src_username)) {
                 promptForCredientials();
             }
-            showLoadingDialog();
+            
 
             int step = 1;
             int totalSteps = 3;
@@ -150,7 +160,7 @@ public class App {
 
 
             EventBus.publish(new LoadingMessage(totalSteps, totalSteps, "Downloading Data", 4, 4, "Complete!"));
-            hideLoadingDialog();
+            
             return db;
     }
 
@@ -220,26 +230,31 @@ public class App {
         // create a continous replication
         CouchDbConnector rep_db = localCouchManager.getCouchConnector("_replicator", instance);
 
-        ObjectMapper mapper = new ObjectMapper();
-        if (StringUtils.equalsIgnoreCase(syncType, "bi-directional") || StringUtils.equalsIgnoreCase(syncType, "pull")) {
-            
-            ObjectNode pull = mapper.createObjectNode();
-            pull.put("_id", "couchapp-takeout-" + localDbName + "-pull");
-            pull.put("source", src_fullurl);
-            pull.put("target", localDbName);
-            pull.put("continuous", true);
-            rep_db.create(pull);
-        }
-        if (StringUtils.equalsIgnoreCase(syncType, "bi-directional") || StringUtils.equalsIgnoreCase(syncType, "push")) {
-            // other direction
-            ObjectNode push = mapper.createObjectNode();
-            push.put("_id", "couchapp-takeout-" + localDbName + "-push");
-            push.put("target", src_fullurl);
-            push.put("source", localDbName);
-            push.put("continuous", true);
-            rep_db.create(push);
-        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            if (StringUtils.equalsIgnoreCase(syncType, "bi-directional") || StringUtils.equalsIgnoreCase(syncType, "pull")) {
 
+                ObjectNode pull = mapper.createObjectNode();
+                pull.put("_id", "couchapp-takeout-" + localDbName + "-pull");
+                pull.put("source", src_fullurl);
+                pull.put("target", localDbName);
+                pull.put("continuous", true);
+                rep_db.create(pull);
+            }
+            if (StringUtils.equalsIgnoreCase(syncType, "bi-directional") || StringUtils.equalsIgnoreCase(syncType, "push")) {
+                // other direction
+                ObjectNode push = mapper.createObjectNode();
+                push.put("_id", "couchapp-takeout-" + localDbName + "-push");
+                push.put("target", src_fullurl);
+                push.put("source", localDbName);
+                push.put("continuous", true);
+                rep_db.create(push);
+            }
+        } catch(org.ektorp.UpdateConflictException uce) {
+            // the entry exists already in the replicator.
+        } catch (Exception e) {
+            // something else...no replicator db
+        }
     }
 
 
@@ -249,7 +264,6 @@ public class App {
 
         // get the main design doc
         JsonNode design = db.get(JsonNode.class, "_design/takeout");
-        String appName = design.get("takeout").get("appName").getTextValue();
         String localStartUrl = "/_design/app/index.html";
 
 
@@ -292,7 +306,7 @@ public class App {
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        hideSplashDialog();
 
         //lastly, if had to load, setup replication
         if (hadToLoad) {
@@ -326,45 +340,42 @@ public class App {
     }
 
 
-    protected void showLoadingDialog() {
+    protected void showSplashDialog() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                if (loadingDialog == null) {
-                    loadingDialog = new LoadingDialog(new javax.swing.JFrame(), true);
+                if (splash == null) {
+                    splash = new Splash(appName);
                 }
-                if (appIcon != null) loadingDialog.setIconImage(appIcon.getImage());
-                loadingDialog.setVisible(true);
+                splash.setVisible(true);
             }
         });
         // wait for it to be visable
-        while (loadingDialog == null || !loadingDialog.isShowing()) {
+        while (splash == null || !splash.isShowing()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
                 Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
-
-
-
     }
 
-    private void hideLoadingDialog() {
-        
-        // sleep a bit so user sees the final state.
+    protected void hideSplashDialog() {
+        if (splash == null) return;
         try {
             Thread.sleep(500);
         } catch (InterruptedException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
-        loadingDialog.dispose();
+        splash.dispose();
     }
+
+
 
 
     private void promptForCredientials() {
         dialog = new AuthenticationDialog(new javax.swing.JFrame(), true);
-        if (appIcon != null) loadingDialog.setIconImage(appIcon.getImage());
+        if (appIcon != null) dialog.setIconImage(appIcon.getImage());
+        dialog.setTitle("Please Enter Remote Password");
         dialog.setSrcUrl(getSrcReplicationUrl(false));
         dialog.setUsername(src_username);
 
@@ -446,29 +457,30 @@ public class App {
             System.setProperty(EventServiceLocator.SERVICE_NAME_EVENT_BUS, ThreadSafeEventService.class.getName());
             UIManager.setLookAndFeel(
             UIManager.getSystemLookAndFeelClassName());
-
+            String appName = null;
             String host = null;
             String db   = null;
             int port    = -1;
             String username = null;
 
-            if (args.length >= 1) {
-                String[] hostport = parseUsernamePass(args[0]);
-                host = hostport[0];
-                if (hostport.length == 2) {
-                    try {
-                        port = Integer.parseInt(hostport[1]);
-                    } catch (Exception e) {}
-                }
+            
+            appName = args[0];
+            String[] hostport = parseUsernamePass(args[1]);
+            host = hostport[0];
+            if (hostport.length == 2) {
+                try {
+                    port = Integer.parseInt(hostport[1]);
+                } catch (Exception e) {}
             }
-            if (args.length >= 2) {
-                db = args[1];
-            }
-            if (args.length == 3) {
-                String[] up = parseUsernamePass(args[2]);
+            
+
+            db = args[2];
+            
+            if (args.length == 4) {
+                String[] up = parseUsernamePass(args[3]);
                 username = up[0];
             }
-            new App(host, db, port, username).start();
+            new App(appName, host, db, port, username).start();
 
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
@@ -563,9 +575,6 @@ public class App {
         return dialog;
     }
 
-    protected LoadingDialog getLoadingDialog() {
-        return loadingDialog;
-    }
 
     private void setIconForDialogs() {
         String url = getSrcIconUrl();
@@ -573,6 +582,8 @@ public class App {
             appIcon = createImage(url);
         } catch (Exception e) {}
     }
+
+
 
 
 

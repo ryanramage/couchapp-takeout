@@ -25,6 +25,7 @@ function(doc, req) {
 	for (var a in this._attachments) { if (a.endsWith('.jar')) { var main = ''; if (a == advanced['main-jar']) main = 'main=\"true\"'; result += ' <jar href=\"'+a+'\" '+main+'/> '; } }
 	result += '</resources>'; 
 	result += '  <application-desc main-class=\"'+advanced['main-class']+'\">';
+    result += '  <argument>' + cur.appName + '</argument>';
 	result += '  <argument>' + req.headers.Host + '</argument>'; 
 	result += '  <argument>' + req.userCtx.db + '</argument>';
 	if (req.userCtx && req.userCtx.name && req.userCtx.name != null) { result += '  <argument>' + req.userCtx.name + '</argument>'; } 

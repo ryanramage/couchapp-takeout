@@ -34,28 +34,28 @@ public class AppTest {
 
     @Test
     public void createLocalDatabaseNameTest() {
-        App app2 = new App("choose.iriscouch.com", "choose", 80, null);
+        App app2 = new App("App Name", "choose.iriscouch.com", "choose", 80, null);
         String localDbName = app2.createLocalDbName();
         assertEquals("choose-choose_iriscouch_com", localDbName);
     }
 
     @Test
     public void createLocalDatabaseNameTestPort() {
-        App app2 = new App("choose.iriscouch.com", "choose", 5984, null);
+        App app2 = new App("App Name", "choose.iriscouch.com", "choose", 5984, null);
         String localDbName = app2.createLocalDbName();
         assertEquals("choose-choose_iriscouch_com-5984", localDbName);
     }
 
     @Test
     public void createLocalDatabaseNameLowerCase() {
-        App app2 = new App("choose.irisCouch.com", "choose", 5984, null);
+        App app2 = new App("App Name", "choose.irisCouch.com", "choose", 5984, null);
         String localDbName = app2.createLocalDbName();
         assertEquals("choose-choose_iriscouch_com-5984", localDbName);
     }
 
     @Test
     public void testGetSrcReplicationUrl() {
-        App app2 = new App("choose.iriscouch.com", "choose", 81, null);
+        App app2 = new App("App Name", "choose.iriscouch.com", "choose", 81, null);
         String result = app2.getSrcReplicationUrl(false);
         assertEquals("http://choose.iriscouch.com:81/choose", result);
     }
@@ -63,7 +63,7 @@ public class AppTest {
 
     // Needs to be an integration test
     public void testStartSync() {
-        App app2 = new App("localhost", "choose", 5984, null);
+        App app2 = new App("App Name", "localhost", "choose", 5984, null);
 
         HttpClient httpClient = new StdHttpClient.Builder()
                             .host("localhost")
@@ -82,7 +82,7 @@ public class AppTest {
      */
 
     public void testLoadNeededNoPassword() throws Exception {
-        App app = new App("choose.irisCouch.com", "choose", 5984, null);
+        App app = new App("App Name", "choose.irisCouch.com", "choose", 5984, null);
         setupMocksFor(app);
         replay(mock);
         replay(couchMock);
