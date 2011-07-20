@@ -55,7 +55,14 @@ Replace the two attachements on the design doc called logo.png and splash.png wi
 
 ## Add a link from your application
 
-Now you need a link in your application called 'install' or 'download' that launches the installer. Here is how to do it.
+### Easy way
+
+Simply add a from your app, or your homepage, to /_design/takeout/install.html 
+This page shows the user the link to download the application.
+
+### Harder way
+
+If you want to create your own link in your application called 'install' or 'download' that launches the installer, here is how to do it.
 
 Import the takeout jquery plugin into your page (make sure you have jquery as well).
 Add a div where the link will appear,
@@ -65,7 +72,7 @@ Here is some example html:
 ```html
 <head>
     <script type="text/javascript" src="jquery-1.6.2.min.js" ></script>
-    <script type="text/javascript" src="_design/takeout/takeout.js" ></script>
+    <script type="text/javascript" src="/dbname/_design/takeout/takeout.js" ></script>
     <script type="text/javascript">
         $(function() {
             $('#takeout').takeout({linkText : "Download", localText : "Installed"});
@@ -75,7 +82,7 @@ Here is some example html:
 <body>
 
     <h3>Example 1 - As a link</h3>
-    <a href="_show/takeout.jnlp">Take out!</a>
+    <a href="_show/takeout.jnlp">Install</a>
 
     <h3>Example 2 - Changes based on running remote or local.</h3>
     <p>
@@ -102,7 +109,7 @@ Ok, also a few things
 
 If you want to see it on an existing application, the links on this page will install 'Couch Tasks' on your computer:
 
-http://ecko-it.couchone.com:5984/couchtasks/_design/takeout/index.html
+http://ecko-it.couchone.com:5984/couchtasks/_design/takeout/install.html
 
 
 ## The Desktop

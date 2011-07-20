@@ -1,0 +1,18 @@
+.main {
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.takeoutLink {
+    text-align: center;
+}
+
+.description {
+    margin-top: 25px;
+}
+
+.requirements {
+    margin-top: 10px;
+    font-size: 10px;
+}

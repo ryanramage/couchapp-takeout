@@ -1,0 +1,101 @@
+<html>
+<head>
+    <title>Install</title>
+    <link rel="stylesheet" type="text/css" href="styles.css"  media="screen" />
+    <script type="text/javascript" src="jquery-1.6.2.min.js" ></script>
+    <script type="text/javascript">
+        $(function() {
+
+            // get needed info to make this page
+            function getApplcationInfo(db, callback) {
+                var takeoutDesign = "/" + db + "/_design/takeout" ;
+                var div = this;
+                $.ajax({
+                  url: takeoutDesign,
+                  success: function(data) {
+                     var takeoutInfo = data.takeout;
+                     if (data._attachments['splash.png']) {
+                         takeoutInfo.splash = true;
+                     }
+                     callback(takeoutInfo)
+                  },
+                  error: function() {
+
+                  },
+                  dataType: 'json'
+                });
+            } 
+
+
+            function showApplicationInfo(takeoutInfo) {
+
+                if (takeoutInfo.splash) {
+                    var splashurl = "/" + db + "/_design/takeout/splash.png" ;
+                    $('.splash').append('<img src="'+ splashurl +'" alt=""/>');
+
+                } else {
+                    $('.title').text(takeoutInfo.appName);
+                }
+
+                var jnlpLink = "/" + db + "/_design/takeout/_show/takeout.jnlp" ;
+                $('.link').append('<a class="takeoutLink" href="'+ jnlpLink +'">Install '+ takeoutInfo.appName + '</a>');
+                $('.appName').text(takeoutInfo.appName);
+
+
+                if (takeoutInfo.advanced && takeoutInfo.advanced.syncType) {
+                    var syncMessage = "";
+                    if (takeoutInfo.advanced.syncType == 'bi-directional') {
+                        syncMessage = "Your data on your computer, and this online version will be kept in sync. This allows you to work offline.";
+                    }
+                    if (takeoutInfo.advanced.syncType == 'pull') {
+                        syncMessage = "The application will be setup to receive the latest updates.";
+                    }
+                    $('.syncType').text(syncMessage);
+                }
+
+            }   
+
+
+            var match = /\/([a-zA-Z0-9_-]+)\//.exec(window.location);
+            var db = match[1];
+            var takeoutLocalDoc = "/" + db + "/_local/takeout" ;
+            var div = this;
+            $.ajax({
+              url: takeoutLocalDoc,
+              success: function(data) {
+                  // this couch app has been installed
+                  $('.link,.requirements').hide();
+                  $('.description').text("This is installed on yout computer ")
+              },
+              error: function() {
+                getApplcationInfo(db, showApplicationInfo);
+              },
+              dataType: 'json'
+            });
+            
+        });
+
+    </script>
+</head>
+<body>
+    <div class="main">
+        <div class=banner>
+            <div class="splash"></div>
+            <h1 class="title"></h1>
+        </div>
+        <div class="link"></div>
+        <div class="description">
+            This will install <span class="appName"></span> on your computer.<br/>
+            <div class="syncType"></div>
+            
+        </div>
+        <div class="requirements">
+            For OSX, Windows XP, Vista and 7.<br/>
+            Java required.
+
+        </div>
+    </div>
+
+
+</body>
+</html>

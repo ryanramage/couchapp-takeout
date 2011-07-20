@@ -38,7 +38,8 @@
       error: function() {
            div.each(function() {
               var $this = $(this);
-              $this.append('<a class="takeoutLink" href="_show/takeout.jnlp">'+ linkText + '</a>');
+              var jnlpLink = "/" + db + "/_design/takeout/_show/takeout.jnlp" ;
+              $this.append('<a class="takeoutLink" href="'+ jnlpLink +'">'+ linkText + '</a>');
 
           })         
       },
