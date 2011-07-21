@@ -51,7 +51,7 @@ public class CouchRunner implements Runnable,EventSubscriber<ExitApplicationMess
          try {
             EventBus.subscribeStrongly(ExitApplicationMessage.class, this);
             Logger.getLogger(CouchRunner.class.getName()).log(Level.INFO, "Starting couch.");
-            EventBus.publish(new LoadingMessage(-1, -1, null, 10, 100, "Starting Database" ));
+            EventBus.publish(new LoadingMessage(-1, -1, null, 0, 0, "Starting Database" ));
 
             if (couchProcess != null) {
                 couchProcess.destroy();

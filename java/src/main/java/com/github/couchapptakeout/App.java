@@ -113,6 +113,7 @@ public class App {
         
         try {
             showSplashDialog();
+            
             couchDbInstance = localCouchManager.getCouchInstance();
             CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, couchDbInstance);
             DbInfo info = db.getDbInfo();
@@ -150,6 +151,7 @@ public class App {
 
             couchDbInstance = localCouchManager.getCouchInstance();
             CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, couchDbInstance);
+
             db.createDatabaseIfNotExists();
 
            
