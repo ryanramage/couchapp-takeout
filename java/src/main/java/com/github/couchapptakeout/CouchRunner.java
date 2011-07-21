@@ -43,7 +43,6 @@ public class CouchRunner implements Runnable,EventSubscriber<ExitApplicationMess
         if (couchProcess != null) {
             couchProcess.destroy();
         }
-        System.exit(0);
     }
 
     @Override

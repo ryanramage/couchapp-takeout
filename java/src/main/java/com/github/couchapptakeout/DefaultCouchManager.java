@@ -34,6 +34,8 @@ public class DefaultCouchManager implements LocalCouch{
     private CouchDownloader couchDownloader;
     private Unzipper unzipper;
     private int cachedCouchPort = 5984;
+    private String username = null;
+    private String password = null;
 
 
     public void setCouchDownloader(CouchDownloader couchDownloader) {
@@ -141,10 +143,16 @@ public class DefaultCouchManager implements LocalCouch{
 
     public CouchDbInstance getLocalCouchInstance() {
         this.cachedCouchPort = localCouchPort;
-        HttpClient httpClient = new StdHttpClient.Builder()
+         StdHttpClient.Builder builder =  new StdHttpClient.Builder()
                                     .host("localhost")
-                                    .port(localCouchPort)
-                                    .build();
+                                    .port(localCouchPort);
+         if (username != null) {
+             builder.username(username);
+             builder.password(password);
+         }
+         
+
+         HttpClient httpClient = builder.build();
         return new StdCouchDbInstance(httpClient);
     }
 
@@ -170,10 +178,14 @@ public class DefaultCouchManager implements LocalCouch{
         String ini = getCouchIniLocation();
         int port = getEmbeddedCouchPort(ini);
         this.cachedCouchPort = port;
-        HttpClient httpClient = new StdHttpClient.Builder()
+        StdHttpClient.Builder builder = new StdHttpClient.Builder()
                                     .host("localhost")
-                                    .port(port)
-                                    .build();
+                                    .port(port);
+        if (username != null) {
+            builder.username(username);
+            builder.password(password);
+        }
+        HttpClient httpClient  = builder.build();
         return new StdCouchDbInstance(httpClient);
     }
 
@@ -226,6 +238,12 @@ public class DefaultCouchManager implements LocalCouch{
             }
         } catch (Exception e) {}
         return false;
+    }
+
+    @Override
+    public void setCredentials(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 
 

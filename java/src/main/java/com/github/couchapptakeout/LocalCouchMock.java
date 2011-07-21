@@ -46,4 +46,9 @@ public class LocalCouchMock implements LocalCouch  {
         return 5984;
     }
 
+    @Override
+    public void setCredentials(String username, String password) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

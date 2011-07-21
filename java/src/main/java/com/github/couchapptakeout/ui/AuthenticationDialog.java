@@ -28,6 +28,14 @@ public class AuthenticationDialog extends javax.swing.JDialog {
         initComponents();
     }
 
+    public void isLocalAuth(boolean isLocal) {
+        if (isLocal) {
+            headerLabel.setText("Local Authenticate");
+            messageLabel.setText("The local data source is password protected. Please enter your password.");
+        }
+    }
+
+
     public boolean isOk() {
         return ok;
     }
@@ -61,9 +69,9 @@ public class AuthenticationDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        headerLabel = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
+        messageLabel = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         usernameTextField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
@@ -78,8 +86,8 @@ public class AuthenticationDialog extends javax.swing.JDialog {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 1, 20));
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        jLabel1.setText("Authenticate ");
+        headerLabel.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        headerLabel.setText("Remote Authenticate ");
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -87,20 +95,20 @@ public class AuthenticationDialog extends javax.swing.JDialog {
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel1)
-                .addContainerGap(452, Short.MAX_VALUE))
+                .add(headerLabel)
+                .addContainerGap(419, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel1)
+                .add(headerLabel)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 20, 20, 20));
 
-        jLabel3.setText("In order to copy the data locally, you must sign in.");
+        messageLabel.setText("The remote data source is password protected. Please enter your password.");
 
         jLabel2.setText("Data Source");
 
@@ -146,7 +154,7 @@ public class AuthenticationDialog extends javax.swing.JDialog {
             .add(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel3)
+                    .add(messageLabel)
                     .add(jPanel2Layout.createSequentialGroup()
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(jLabel5)
@@ -156,18 +164,18 @@ public class AuthenticationDialog extends javax.swing.JDialog {
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel2Layout.createSequentialGroup()
                                 .add(okButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 302, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 341, Short.MAX_VALUE)
                                 .add(cancelButton))
-                            .add(usernameTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE)
-                            .add(dataSourceTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE)
-                            .add(passwordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE))))
+                            .add(usernameTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE)
+                            .add(dataSourceTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE)
+                            .add(passwordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel2Layout.createSequentialGroup()
                 .add(20, 20, 20)
-                .add(jLabel3)
+                .add(messageLabel)
                 .add(37, 37, 37)
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
@@ -243,13 +251,13 @@ public class AuthenticationDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JTextField dataSourceTextField;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel headerLabel;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel messageLabel;
     private javax.swing.JButton okButton;
     private javax.swing.JPasswordField passwordField;
     private javax.swing.JTextField usernameTextField;

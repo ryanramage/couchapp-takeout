@@ -59,6 +59,8 @@ public class App {
     String src_username;
     String src_password;
     String localDbName;
+    String local_username;
+    String local_password;
     boolean sync = true;
     LocalCouch localCouchManager;
     Splash splash;
@@ -110,6 +112,17 @@ public class App {
 
     public void start() throws Exception {
         // always listen for the exit application message
+        EventBus.subscribeStrongly(ExitApplicationMessage.class, new EventSubscriber<ExitApplicationMessage>() {
+           @Override
+            public void onEvent(ExitApplicationMessage t) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                System.exit(0);
+            }
+        });
         
         try {
             showSplashDialog();
@@ -135,7 +148,7 @@ public class App {
             // we need to prompt for credentials if there is a username
 
             if (StringUtils.isNotBlank(src_username)) {
-                promptForCredientials();
+                promptForCredientials(false);
             }
             
 
@@ -152,9 +165,16 @@ public class App {
 
             couchDbInstance = localCouchManager.getCouchInstance();
             CouchDbConnector db = localCouchManager.getCouchConnector(localDbName, couchDbInstance);
-
-            db.createDatabaseIfNotExists();
-
+            try {
+                db.createDatabaseIfNotExists();
+            }  catch (org.ektorp.DbAccessException dae) {
+                // we need to login to the db
+                promptForCredientials(true);
+                localCouchManager.setCredentials(local_username, local_password);
+                couchDbInstance = localCouchManager.getCouchInstance();
+                db = localCouchManager.getCouchConnector(localDbName, couchDbInstance);
+                db.createDatabaseIfNotExists();
+            }
            
             // init one time replicate
             EventBus.publish(new LoadingMessage(step++, totalSteps, "Downloading Data", 0, 0, "Copy data from " + getSrcReplicationUrl(false) ));
@@ -375,17 +395,29 @@ public class App {
 
 
 
-    private void promptForCredientials() {
+    private void promptForCredientials(boolean local) {
         dialog = new AuthenticationDialog(new javax.swing.JFrame(), true);
         if (appIcon != null) dialog.setIconImage(appIcon.getImage());
         dialog.setTitle("Please Enter Remote Password");
-        dialog.setSrcUrl(getSrcReplicationUrl(false));
+        
         dialog.setUsername(src_username);
+        dialog.isLocalAuth(local);
+        if (local) {
+            dialog.setSrcUrl("localhost:" + localCouchManager.getCouchPort());
+        } else {
+            dialog.setSrcUrl(getSrcReplicationUrl(false));
+        }
 
         dialog.setVisible(true);
+
         if (dialog.isOk()) {
-            src_username = dialog.getUsername();
-            src_password = new String(dialog.getPassword());
+            if (local) {
+                local_username = dialog.getUsername();
+                local_password = new String(dialog.getPassword());
+            } else {
+                src_username = dialog.getUsername();
+                src_password = new String(dialog.getPassword());
+            }
         }
     }
 

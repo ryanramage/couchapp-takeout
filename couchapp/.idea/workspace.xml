@@ -59,15 +59,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="_design-app.json" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/_design-app.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="46" column="0" selection-start="3168" selection-end="3168" vertical-scroll-proportion="0.7752809">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="reupholster.json" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/reupholster.json">
           <provider selected="true" editor-type-id="text-editor">
@@ -77,10 +68,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="styles.css" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="styles.css" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/html/styles.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="17" selection-start="213" selection-end="213" vertical-scroll-proportion="0.0">
+            <state line="16" column="20" selection-start="216" selection-end="216" vertical-scroll-proportion="0.26482758">
               <folding />
             </state>
           </provider>
@@ -100,10 +91,10 @@
         <option value="$PROJECT_DIR$/html/index.html" />
         <option value="$PROJECT_DIR$/reupholster.json" />
         <option value="$PROJECT_DIR$/html/takeout.js" />
-        <option value="$PROJECT_DIR$/html/styles.css" />
         <option value="$PROJECT_DIR$/html/install.html" />
         <option value="$PROJECT_DIR$/show_takeout.js" />
         <option value="$PROJECT_DIR$/_design-app.json" />
+        <option value="$PROJECT_DIR$/html/styles.css" />
       </list>
     </option>
   </component>
@@ -257,11 +248,6 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/reupholster.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="0" selection-start="139" selection-end="139" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/html/index.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="10" column="8" selection-start="342" selection-end="342" vertical-scroll-proportion="-5.714286">
@@ -276,16 +262,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/html/styles.css">
+    <entry file="file://$PROJECT_DIR$/html/install.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="17" selection-start="213" selection-end="213" vertical-scroll-proportion="0.0">
+        <state line="87" column="16" selection-start="3152" selection-end="3152" vertical-scroll-proportion="-22.047619">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/html/install.html">
+    <entry file="file://$PROJECT_DIR$/_design-app.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="87" column="16" selection-start="3152" selection-end="3152" vertical-scroll-proportion="-22.047619">
+        <state line="25" column="14" selection-start="643" selection-end="643" vertical-scroll-proportion="0.4213483">
           <folding />
         </state>
       </provider>
@@ -297,9 +283,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/_design-app.json">
+    <entry file="file://$PROJECT_DIR$/reupholster.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="0" selection-start="3168" selection-end="3168" vertical-scroll-proportion="0.7752809">
+        <state line="1" column="0" selection-start="139" selection-end="139" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/html/styles.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="20" selection-start="216" selection-end="216" vertical-scroll-proportion="0.26482758">
           <folding />
         </state>
       </provider>

@@ -14,6 +14,8 @@ import org.ektorp.CouchDbInstance;
  */
 public interface LocalCouch {
 
+    void setCredentials(String username, String password);
+
     CouchDbInstance getCouchInstance() throws CouchDBNotFoundException;
     CouchDbConnector getCouchConnector(String name, CouchDbInstance instance);
     void installCouchDbEmbedded() throws CouchDbInstallException;
