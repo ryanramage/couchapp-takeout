@@ -1,0 +1,1 @@
+{"couch":{"host":"localhost","port":6984,"db":"takeout-embedded", "username" : "admin", "password" : "admin"}, "designDocName" : "_design/takeout-extended"}

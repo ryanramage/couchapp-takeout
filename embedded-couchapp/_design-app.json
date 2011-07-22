@@ -1,0 +1,32 @@
+{
+    "rewrites" : [
+            {
+                    "from" : "",
+                    "to" : "index.html"
+            },
+			{
+                    "from" : "images/*",
+                    "to" : "images/*"
+            },
+            {
+                    "from" : "scripts/*",
+                    "to" : "scripts/*"
+            },
+            {
+                    "from" : "skin/*",
+                    "to" : "skin/*"
+            },
+            {
+                    "from" : "styles/*",
+                    "to" : "styles/*"
+            },
+            {
+                    "from" : "*",
+                    "to" : "../../*"
+            } 
+    ],
+   "language": "javascript",
+   "shows": {
+       "JxBrowser.jnlp": "function(doc, req) { var codebase = 'http://' + req.headers.Host + '/' + req.path[0] + '/_design/'+req.path[2]+'/'; var defaults = { codebase : codebase, href : '_show/JxBrowser.jnlp'  }; var result = '<?xml version=\"1.0\" encoding=\"utf-8\"?>'; result += '<jnlp spec=\"1.5+\" codebase=\"'+codebase+'\" href=\"'+defaults.href+'\">'; result += '<information>'; result += '  <title>JxBrowser resources</title>'; result += '  <vendor>TeamDev Ltd.</vendor>'; result += '  <homepage href=\"www.teamdev.com/jxbrowser\"/>'; result += '  <offline-allowed/> '; result += '</information>'; result += '<security><all-permissions/></security>'; result += '  <resources> '; result += '      <jar href=\"lib/jxbrowser-2.8.jar\" />'; result += '      <jar href=\"lib/engine-gecko.jar\" />'; result += '      <jar href=\"lib/MozillaGlue.jar\" />'; result += '      <jar href=\"lib/MozillaInterfaces.jar\" />'; result += '      <jar href=\"lib/log4j-1.2.15.jar\" />'; result += '</resources> '; result += '<resources os=\"Windows\">'; result += '      <j2se version=\"1.5+\" initial-heap-size=\"128m\" max-heap-size=\"512m\"/>'; result += '      <jar href=\"lib/engine-ie.jar\" />'; result += '      <jar href=\"lib/winpack-3.8.2.jar\" />'; result += '      <jar href=\"lib/xulrunner-windows.jar\" />'; result += '  </resources>'; result += '  <resources os=\"Mac OS X\">'; result += '      <j2se version=\"1.5+\" initial-heap-size=\"128m\" max-heap-size=\"512m\" java-vm-args=\"-d32\"/>'; result += '      <jar href=\"lib/engine-webkit.jar\" />'; result += '      <jar href=\"lib/xulrunner-mac.jar\" />'; result += '  </resources>'; result += '  <resources os=\"Linux\">'; result += '      <j2se version=\"1.6+\" initial-heap-size=\"128m\" max-heap-size=\"512m\"/>'; result += '      <jar href=\"lib/tuxpack-0.2.jar * \" />'; result += '  </resources>'; result += '  <resources os=\"Linux\" arch=\"ppc i386 i686\">'; result += '      <jar href=\"lib/xulrunner-linux.jar\" />'; result += '  </resources>'; result += '  <resources os=\"Linux\" arch=\"x86_64 amd64\">'; result += '      <jar href=\"lib/xulrunner-linux64.jar\" />'; result += '  </resources>'; result += '  <component-desc/>'; result += '</jnlp>'; return { 'headers' : {'Content-Type' : 'application/x-java-jnlp-file'}, 'body' :  result } }"
+   }
+}

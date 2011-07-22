@@ -3,7 +3,7 @@ function(doc, req) {
 	var codebase = 'http://' + req.headers.Host + '/' + req.path[0] + '/_design/'+req.path[2]+'/'; 
 	var defaults = { codebase : codebase, href : '_show/takeout.jnlp'  }; 
 	var result = '<?xml version=\"1.0\" encoding=\"utf-8\"?>'; 
-	result += '<jnlp spec=\"1.0+\" codebase=\"'+codebase+'\" href=\"'+defaults.href+'\">'; 
+	result += '<jnlp spec=\"1.5+\" codebase=\"'+codebase+'\" href=\"'+defaults.href+'\">'; 
 	var cur = this.takeout;
     var advanced = cur.advanced;
 	result += '<information><title>'+cur.appName+'</title><vendor>'+cur.vendor+'</vendor><homepage>'+cur.homepage+'</homepage><description kind=\"one-line\">'+cur.description+'</description>';
@@ -23,7 +23,11 @@ function(doc, req) {
 	result += '  <resources> <j2se version=\"1.4+\" initial-heap-size=\"32m\" max-heap-size=\"128m\" /> ';
 	String.prototype.endsWith = function(suffix) { return this.indexOf(suffix, this.length - suffix.length) !== -1; };
 	for (var a in this._attachments) { if (a.endsWith('.jar')) { var main = ''; if (a == advanced['main-jar']) main = 'main=\"true\"'; result += ' <jar href=\"'+a+'\" '+main+'/> '; } }
-	result += '</resources>'; 
+    if (advanced.embedded) {
+       var extended = 'http://' + req.headers.Host + '/' + req.path[0] + '/_design/takeout-extended/_show/JxBrowser.jnlp';
+       result += '   <extension name=\"jxbrowser\" href=\"' + extended + '\"/>';
+    }
+	result += '</resources>';
 	result += '  <application-desc main-class=\"'+advanced['main-class']+'\">';
     result += '  <argument>' + cur.appName + '</argument>';
 	result += '  <argument>' + req.headers.Host + '</argument>'; 

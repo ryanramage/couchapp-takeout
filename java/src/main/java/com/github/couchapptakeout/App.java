@@ -6,6 +6,7 @@
 package com.github.couchapptakeout;
 
 import com.github.couchapptakeout.ui.AuthenticationDialog;
+import com.github.couchapptakeout.ui.EmbeddedBrowser;
 import com.github.couchapptakeout.ui.LoadingDialog;
 import com.github.couchapptakeout.ui.Splash;
 import java.awt.Desktop;
@@ -15,6 +16,8 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -24,10 +27,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventServiceLocator;
 import org.bushe.swing.event.EventSubscriber;
@@ -312,20 +317,25 @@ public class App {
         }
         
 
-        // now setup the tray
-        List menuItems = createMenu(appName);
-        Tray tray = new Tray(appIcon, appName, menuItems);
+
 
         try {
-            showUrl(new URL(applicationUrl));
 
-            if (hadToLoad) {
-                // wait a bit and show a message from the tray.
-                Thread.sleep(2000);
-                EventBus.publish(new TrayMessage(appName, "Load Complete! This icon helps you control the application.", MessageType.INFO));
+
+            boolean embedded = isEmbeddedRequested(design);
+            if (embedded) {
+                showEmbedded(applicationUrl);
+            } else {
+                // now setup the tray
+                List menuItems = createMenu(appName);
+                Tray tray = new Tray(appIcon, appName, menuItems);
+                showUrl(new URL(applicationUrl));
+                if (hadToLoad) {
+                    // wait a bit and show a message from the tray.
+                    Thread.sleep(2000);
+                    EventBus.publish(new TrayMessage(appName, "Load Complete! This icon helps you control the application.", MessageType.INFO));
+                }
             }
-
-
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -360,6 +370,15 @@ public class App {
 
 
 
+    }
+
+
+    protected boolean isEmbeddedRequested(JsonNode design) {
+        boolean embedded = false;
+        try {
+            embedded = design.get("takeout").get("advanced").get("embedded").getBooleanValue();
+        } catch (Exception e) {}
+        return embedded;
     }
 
 
@@ -618,7 +637,26 @@ public class App {
         } catch (Exception e) {}
     }
 
+    private void showEmbedded(String applicationUrl) {
+        final EmbeddedBrowser browser = new EmbeddedBrowser();
+        browser.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int value = JOptionPane.showConfirmDialog(browser, "Are you sure you want to exit?", appName, JOptionPane.YES_NO_OPTION);
+                if (value == JOptionPane.YES_OPTION) {
+                    browser.dispose();
+                    EventBus.publish(new ExitApplicationMessage() );
+                }
+            }
+        });
 
+        browser.setVisible(true);
+        if (appIcon != null) browser.setIconImage(appIcon.getImage());
+        browser.setTitle(appName);
+
+        browser.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        browser.setUrl(applicationUrl);
+    }
 
 
 
