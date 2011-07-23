@@ -44,6 +44,7 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbInfo;
+import org.ektorp.ReplicationCommand;
 import org.ektorp.ReplicationStatus;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.HttpResponse;
@@ -194,13 +195,14 @@ public class App {
 
     protected void setupReplication(CouchDbInstance instance, CouchDbConnector db) {
             String src_fullurl = getSrcReplicationUrl(true);
-
+            ReplicationCommand firstReplication = createSrcReplication(src_fullurl, db.getDatabaseName());
 
             try {
                 // on large dbs, this times out
                 // broken waiting for ektorp to fix!!!
                 // We need to catch the error, and poll the couch
-                ReplicationStatus status = db.replicateFrom(src_fullurl);
+                ReplicationStatus status = instance.replicate(firstReplication);
+
             } catch (Exception socketTimeoutException)  {
                 //socketTimeoutException.printStackTrace();
                  System.out.println("REPLICATION HACK");
@@ -245,7 +247,13 @@ public class App {
         }
     }
 
-
+    private ReplicationCommand createSrcReplication(String src_url, String targetdb) {
+        return  new ReplicationCommand.Builder()
+                    .source(src_url)
+                    .target(targetdb)
+                    .filter("takeout/not_takeout")
+                    .build();
+    }
 
 
     protected void startSync(CouchDbConnector localdb, CouchDbInstance instance, String syncType) {
@@ -291,13 +299,11 @@ public class App {
        
 
         // get the main design doc
-        JsonNode design = db.get(JsonNode.class, "_design/takeout");
+        JsonNode design = db.get(JsonNode.class, "_design/takeout-settings.jnlp");
         String localStartUrl = "/_design/app/index.html";
 
-
-
         try {
-            localStartUrl = design.get("takeout").get("localStartUrl").getTextValue();
+            localStartUrl = design.get("localStartUrl").getTextValue();
             if (! localStartUrl.startsWith("/")) localStartUrl = "/" + localStartUrl;
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.WARNING, "Could not find localStartUrl", ex);
@@ -307,7 +313,7 @@ public class App {
 
 
         if (appIcon == null) {
-            String iconUrl =  "http://localhost:" + localCouchManager.getCouchPort() + "/" + db.getDatabaseName() + "/_design/takeout/icon.png";
+            String iconUrl =  "http://localhost:" + localCouchManager.getCouchPort() + "/" + db.getDatabaseName() + "/_design/takeout-settings.jnlp/icon.png";
             Logger.getLogger(App.class.getName()).log(Level.INFO, iconUrl);
             try {
                 appIcon = createImage(iconUrl);
@@ -345,7 +351,7 @@ public class App {
         if (hadToLoad) {
             String syncType = "bi-directional";
             try {
-                syncType = design.get("takeout").get("advanced").get("syncType").getTextValue();
+                syncType = design.get("advanced").get("syncType").getTextValue();
 
             } catch (Exception ex) {
                 Logger.getLogger(App.class.getName()).log(Level.WARNING, "Could not find localStartUrl", ex);
@@ -376,7 +382,7 @@ public class App {
     protected boolean isEmbeddedRequested(JsonNode design) {
         boolean embedded = false;
         try {
-            embedded = design.get("takeout").get("advanced").get("embedded").getBooleanValue();
+            embedded = design.get("advanced").get("embedded").getBooleanValue();
         } catch (Exception e) {}
         return embedded;
     }
@@ -657,6 +663,8 @@ public class App {
         browser.setExtendedState(JFrame.MAXIMIZED_BOTH);
         browser.setUrl(applicationUrl);
     }
+
+
 
 
 

@@ -1,18 +1,25 @@
 function(doc, req) { 
 	if (!this._attachments) return''; 
+	if (!doc) return '';
 	var codebase = 'http://' + req.headers.Host + '/' + req.path[0] + '/_design/'+req.path[2]+'/'; 
-	var defaults = { codebase : codebase, href : '_show/takeout.jnlp'  }; 
+	var defaults = { codebase : codebase, href : '_show/takeout.jnlp/_design/takeout-settings.jnlp'  }; 
 	var result = '<?xml version=\"1.0\" encoding=\"utf-8\"?>'; 
 	result += '<jnlp spec=\"1.5+\" codebase=\"'+codebase+'\" href=\"'+defaults.href+'\">'; 
-	var cur = this.takeout;
+	var cur = doc;
     var advanced = cur.advanced;
 	result += '<information><title>'+cur.appName+'</title><vendor>'+cur.vendor+'</vendor><homepage>'+cur.homepage+'</homepage><description kind=\"one-line\">'+cur.description+'</description>';
-	if (this._attachments['splash.png']) { 
-		result += '<icon kind=\"splash\" href=\"splash.png\"/>'; 
-	} 
-	if (this._attachments['icon.png']) { 
-		result += '<icon href=\"icon.png\"/>';
-	} 
+	var icon = 'icon.png';
+	var splash = 'splash.png';
+	if (doc._attachments) {
+		if (doc._attachments['splash.png']) { 
+			splash = '../takeout-settings.jnlp/splash.png';
+		} 
+		if (doc._attachments['icon.png']) { 
+			icon = '../takeout-settings.jnlp/icon.png'
+		} 
+	}
+	result += '<icon kind=\"splash\" href=\"'+ splash +'\"/>'; 
+	result += '<icon href=\"' + icon + '\"/>'; 
 	result += ' <offline-allowed/> ';
 	result += ' <shortcut online=\"false\">';
 	result += '   <desktop/>'; 

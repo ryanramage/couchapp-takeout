@@ -26,7 +26,7 @@
       <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/html/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="8" selection-start="342" selection-end="342" vertical-scroll-proportion="-5.714286">
+            <state line="10" column="8" selection-start="342" selection-end="342" vertical-scroll-proportion="-0.5714286">
               <folding />
             </state>
           </provider>
@@ -41,10 +41,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="install.html" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="install.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/html/install.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="87" column="16" selection-start="3152" selection-end="3152" vertical-scroll-proportion="-22.047619">
+            <state line="33" column="9" selection-start="1179" selection-end="1179" vertical-scroll-proportion="0.5954887">
               <folding />
             </state>
           </provider>
@@ -59,19 +59,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="show_takeout.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/show_takeout.js">
+      <file leaf-file-name="_design-app.json" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_design-app.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="1" selection-start="2299" selection-end="2299" vertical-scroll-proportion="0.0">
+            <state line="35" column="1" selection-start="3423" selection-end="3423" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="_design-app.json" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/_design-app.json">
+      <file leaf-file-name="takeout-settings.jnlp.json" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/_design/takeout-settings.jnlp.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="32" column="45" selection-start="820" selection-end="820" vertical-scroll-proportion="0.53932583">
+            <state line="12" column="5" selection-start="391" selection-end="391" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -90,11 +90,13 @@
         <option value="$PROJECT_DIR$/_design-takeout.json" />
         <option value="$PROJECT_DIR$/html/index.html" />
         <option value="$PROJECT_DIR$/reupholster.json" />
-        <option value="$PROJECT_DIR$/html/install.html" />
         <option value="$PROJECT_DIR$/html/styles.css" />
         <option value="$PROJECT_DIR$/show_takeout.js" />
         <option value="$PROJECT_DIR$/html/takeout.js" />
+        <option value="$PROJECT_DIR$/docs/_design/queries.json" />
+        <option value="$PROJECT_DIR$/docs/_design/takeout-settings.json" />
         <option value="$PROJECT_DIR$/_design-app.json" />
+        <option value="$PROJECT_DIR$/html/install.html" />
       </list>
     </option>
   </component>
@@ -141,6 +143,38 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="couchapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="couchapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="couchapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="html" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="couchapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="couchapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="docs" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="_design" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -234,30 +268,33 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/html/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="8" selection-start="342" selection-end="342" vertical-scroll-proportion="-5.714286">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/html/styles.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="20" selection-start="216" selection-end="216" vertical-scroll-proportion="0.26482758">
+        <state line="16" column="20" selection-start="216" selection-end="216" vertical-scroll-proportion="0.26482758" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/html/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="8" selection-start="342" selection-end="342" vertical-scroll-proportion="-0.5714286">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/html/install.html">
+    <entry file="file://$PROJECT_DIR$/docs/_design/takeout-settings.jnlp.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="87" column="16" selection-start="3152" selection-end="3152" vertical-scroll-proportion="-22.047619">
+        <state line="12" column="5" selection-start="391" selection-end="391" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/html/takeout.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="5" selection-start="491" selection-end="491" vertical-scroll-proportion="0.0">
+        <state line="21" column="5" selection-start="491" selection-end="491" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/show_takeout.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="1" selection-start="2526" selection-end="2526" vertical-scroll-proportion="0.75842696">
           <folding />
         </state>
       </provider>
@@ -267,16 +304,16 @@
         <state line="1" column="0" selection-start="139" selection-end="139" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/show_takeout.js">
+    <entry file="file://$PROJECT_DIR$/_design-app.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="1" selection-start="2299" selection-end="2299" vertical-scroll-proportion="0.0">
+        <state line="35" column="1" selection-start="3423" selection-end="3423" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/_design-app.json">
+    <entry file="file://$PROJECT_DIR$/html/install.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="45" selection-start="820" selection-end="820" vertical-scroll-proportion="0.53932583">
+        <state line="33" column="9" selection-start="1179" selection-end="1179" vertical-scroll-proportion="0.5954887">
           <folding />
         </state>
       </provider>

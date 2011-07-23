@@ -1,0 +1,13 @@
+{
+  "appName"  : "Takeout",
+  "vendor"   : "Ecko-it",
+  "homepage" : "http://eckoit.com",
+  "description" : "A couch app installer.",
+  "localStartUrl" : "_design/takeout/index.html",
+  "advanced" : {
+        "syncType" : "bi-directional",
+        "embedded" : false,
+        "main-jar" : "couchapp-takeout-1.0-SNAPSHOT.jar",
+        "main-class" : "com.github.couchapptakeout.App"
+  }
+}    

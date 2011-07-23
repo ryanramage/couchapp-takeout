@@ -8,13 +8,15 @@
 
             // get needed info to make this page
             function getApplcationInfo(db, callback) {
+
+                var takeoutSettings = "/" + db + "/_design/takeout-settings.jnlp" ;
                 var takeoutDesign = "/" + db + "/_design/takeout" ;
+
                 var div = this;
                 $.ajax({
-                  url: takeoutDesign,
-                  success: function(data) {
-                     var takeoutInfo = data.takeout;
-                     if (data._attachments['splash.png']) {
+                  url: takeoutSettings,
+                  success: function(takeoutInfo) {
+                     if (takeoutInfo._attachments && takeoutInfo._attachments['splash.png']) {
                          takeoutInfo.splash = true;
                      }
                      callback(takeoutInfo)
@@ -26,18 +28,14 @@
                 });
             } 
 
-
             function showApplicationInfo(takeoutInfo) {
 
-                if (takeoutInfo.splash) {
-                    var splashurl = "/" + db + "/_design/takeout/splash.png" ;
-                    $('.splash').append('<img src="'+ splashurl +'" alt=""/>');
+                var splashurl = "/" + db + "/_design/takeout-settings.jnlp/splash.png" ;
+                $('.splash').append('<img src="'+ splashurl +'" alt=""/>');
 
-                } else {
-                    $('.title').text(takeoutInfo.appName);
-                }
 
-                var jnlpLink = "/" + db + "/_design/takeout/_show/takeout.jnlp" ;
+
+                var jnlpLink = "/" + db + "/_design/takeout/_show/takeout.jnlp/_design/takeout-settings.jnlp" ;
                 $('.link').append('<a class="takeoutLink" href="'+ jnlpLink +'">Install '+ takeoutInfo.appName + '</a>');
                 $('.appName').text(takeoutInfo.appName);
 
@@ -65,7 +63,7 @@
               success: function(data) {
                   // this couch app has been installed
                   $('.link,.requirements').hide();
-                  $('.description').text("This is installed on yout computer ")
+                  $('.description').text("This is installed on your computer ")
               },
               error: function() {
                 getApplcationInfo(db, showApplicationInfo);
