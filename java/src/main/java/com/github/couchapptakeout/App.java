@@ -7,23 +7,20 @@ package com.github.couchapptakeout;
 
 import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.EmbeddedBrowser;
-import com.github.couchapptakeout.ui.LoadingDialog;
 import com.github.couchapptakeout.ui.Splash;
 import java.awt.Desktop;
-import java.awt.Dimension;
 import java.awt.MenuItem;
-import java.awt.Toolkit;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -31,14 +28,14 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
+import org.apache.commons.lang.reflect.MethodUtils;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventServiceLocator;
 import org.bushe.swing.event.EventSubscriber;
 import org.bushe.swing.event.ThreadSafeEventService;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.CouchDbConnector;
@@ -46,6 +43,9 @@ import org.ektorp.CouchDbInstance;
 import org.ektorp.DbInfo;
 import org.ektorp.ReplicationCommand;
 import org.ektorp.ReplicationStatus;
+import org.ektorp.ViewQuery;
+import org.ektorp.ViewResult;
+import org.ektorp.ViewResult.Row;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.HttpResponse;
 import org.ektorp.http.StdHttpClient;
@@ -217,8 +217,11 @@ public class App {
 
     protected void waitForReplicationToFinishHack(CouchDbInstance instance) {
 
-        boolean replicationComplete = false;
+        
 
+        // get the current replications in the replication db
+        Map replicationIDs = getReplicationIDs(instance);
+        boolean replicationComplete = false;
         while(!replicationComplete) {
             // need to check the active tasks
             HttpResponse response = instance.getConnection().get("/_active_tasks");
@@ -229,23 +232,40 @@ public class App {
                 for (JsonNode element : results) {
                     if ("Replication".equals(element.get("type").getTextValue())) {
                         String task = element.get("task").getTextValue();
-
+                        String repID = task.substring(0, 4);
+                        if (!replicationIDs.containsKey(repID)) {
                         // this is a BIG assumption for now. We are assuming that we
                         // we are the only one using this db.
-
-                        if (!task.contains("couchapp-takeout-")) {
                             replicationComplete = false; // sorry, still going
                         }
                     }
                 }
-
                 Thread.sleep(1000);
-
             } catch (Exception ex) {
                 Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
+
+    
+
+    protected Map getReplicationIDs(CouchDbInstance instance) {
+        HashMap map = new HashMap();
+        // 1.0 and earlier will fail
+        try {
+            CouchDbConnector replicator = instance.createConnector("_replicator", false);
+            ViewQuery query = new ViewQuery().allDocs().includeDocs(true);
+            ViewResult result = replicator.queryView(query);
+            for (Row row : result) {
+                String replicationID = row.getDocAsNode().get("_replication_id").getTextValue();
+                map.put(replicationID.substring(0,4), replicationID);
+            }
+        } catch (Exception e) {}
+        return map;
+    }
+
+
+
 
     private ReplicationCommand createSrcReplication(String src_url, String targetdb) {
         return  new ReplicationCommand.Builder()
@@ -373,9 +393,14 @@ public class App {
 
 
         }
-
-
-
+        try {
+            String appClass = design.get("advanced").get("appClass").getTextValue();
+            Class clazz = ClassUtils.getClass(appClass);
+            Object instance = clazz.newInstance();
+            MethodUtils.invokeMethod(instance, "start", db);
+        } catch (Exception e ) {
+            
+        }
     }
 
 
@@ -661,7 +686,17 @@ public class App {
         browser.setTitle(appName);
 
         browser.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        try {
+            // have some delay before showing? Maybe not init'ed
+            Thread.sleep(400);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         browser.setUrl(applicationUrl);
+        browser.invalidate();
+        browser.validate();
+        browser.repaint();
     }
 
 
