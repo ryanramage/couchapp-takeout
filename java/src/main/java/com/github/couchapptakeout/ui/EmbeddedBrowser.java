@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
 
 /**
@@ -31,13 +32,22 @@ public class EmbeddedBrowser extends javax.swing.JFrame {
     public EmbeddedBrowser() {
         initComponents();
         try {
+
+            Object browserType = null;
             // we do this via reflection! Saves having to include the maven stuff
             Class factory = ClassUtils.getClass("com.teamdev.jxbrowser.BrowserFactory");
-            browser = MethodUtils.invokeStaticMethod(factory, "createBrowser", null);
+            System.out.println("Factory: " + factory);
+            if (!SystemUtils.IS_OS_MAC_OSX) {
+                // always use FF
+                Class browserTypeClazz = ClassUtils.getClass("com.teamdev.jxbrowser.BrowserType");
+                browserType = MethodUtils.invokeStaticMethod(browserTypeClazz, "valueOf", "Mozilla");
+                browser = MethodUtils.invokeStaticMethod(factory, "createBrowser", browserType);
 
+            } else {
+                browser = MethodUtils.invokeStaticMethod(factory, "createBrowser", null);
+            }
+            System.out.println("Browser Type: " + browserType);
             Component c = (Component) MethodUtils.invokeMethod(browser, "getComponent", null);
-
-
             System.out.println("Browser : " + MethodUtils.invokeMethod(browser, "getType", null));
 
 
