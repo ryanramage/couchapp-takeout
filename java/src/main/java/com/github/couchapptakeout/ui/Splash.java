@@ -66,29 +66,35 @@ public class Splash extends javax.swing.JWindow {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
         statusLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
         appNameLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
+        jPanel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
         statusLabel.setBackground(new java.awt.Color(255, 255, 255));
         statusLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         statusLabel.setText("Please Wait...");
         statusLabel.setMaximumSize(new java.awt.Dimension(278, 200));
         statusLabel.setOpaque(true);
-        getContentPane().add(statusLabel, java.awt.BorderLayout.CENTER);
+        jPanel1.add(statusLabel, java.awt.BorderLayout.CENTER);
 
         progressBar.setIndeterminate(true);
         progressBar.setMaximumSize(new java.awt.Dimension(200, 14));
-        getContentPane().add(progressBar, java.awt.BorderLayout.SOUTH);
+        jPanel1.add(progressBar, java.awt.BorderLayout.SOUTH);
 
         appNameLabel.setBackground(new java.awt.Color(255, 255, 255));
         appNameLabel.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         appNameLabel.setText("App Name");
         appNameLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 10, 3, 1));
         appNameLabel.setOpaque(true);
-        getContentPane().add(appNameLabel, java.awt.BorderLayout.PAGE_START);
+        jPanel1.add(appNameLabel, java.awt.BorderLayout.PAGE_START);
+
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -106,6 +112,7 @@ public class Splash extends javax.swing.JWindow {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel appNameLabel;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JLabel statusLabel;
     // End of variables declaration//GEN-END:variables
