@@ -36,6 +36,7 @@ public class DefaultCouchManager implements LocalCouch{
     private int cachedCouchPort = 5984;
     private String username = null;
     private String password = null;
+    private boolean couchStarted = false;
 
 
     public void setCouchDownloader(CouchDownloader couchDownloader) {
@@ -57,7 +58,7 @@ public class DefaultCouchManager implements LocalCouch{
 
 
     @Override
-    public CouchDbInstance getCouchInstance() throws CouchDBNotFoundException {
+    public synchronized CouchDbInstance getCouchInstance() throws CouchDBNotFoundException {
         // check if we already have a embedded couch setup, if yes startEmbeded
         if (haveEmbeddedCouch()) {
 
@@ -65,13 +66,15 @@ public class DefaultCouchManager implements LocalCouch{
                 return getLocalCouchInstance();
             }
 
-            String exe = getCouchExe();
-            CouchRunner runner = new CouchRunner(exe);
-            if (!SystemUtils.IS_OS_WINDOWS) {
-                runner.setWorkingDir(new File(getWorkingDir(), COUCH_DIR));
+            if (!couchStarted) {
+                String exe = getCouchExe();
+                CouchRunner runner = new CouchRunner(exe);
+                if (!SystemUtils.IS_OS_WINDOWS) {
+                    runner.setWorkingDir(new File(getWorkingDir(), COUCH_DIR));
+                }
+                new Thread(runner).start();
+                couchStarted = true;
             }
-            
-            new Thread(runner).start();
             // wait for couch
             return waitForEmbeddedCouch();
         }
