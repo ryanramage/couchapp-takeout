@@ -56,7 +56,6 @@ public class Tray   {
         }
         trayIcon = new TrayIcon(baseImage, appName);
         final PopupMenu popup = createMenu(popupItems);
-
         trayIcon.setPopupMenu(popup);
         trayIcon.addMouseListener(new MouseListener() {
 
@@ -115,16 +114,19 @@ public class Tray   {
         });
 
         EventBus.subscribeStrongly(ExitApplicationMessage.class, new EventSubscriber<ExitApplicationMessage>() {
-
             @Override
             public void onEvent(ExitApplicationMessage t) {
                 SystemTray tray = SystemTray.getSystemTray();
                 tray.remove(trayIcon);
-
-                
-
             }
         });
+        EventBus.subscribeStrongly(AddMenuItemEvent.class, new EventSubscriber<AddMenuItemEvent>() {
+            @Override
+            public void onEvent(AddMenuItemEvent t) {
+                trayIcon.getPopupMenu().add(t.getMenuItem());
+            }
+        });
+
    }
 
 
