@@ -1,7 +1,8 @@
 function(doc, req) { 
 	if (!this._attachments) return''; 
 	if (!doc) return '';
-	var codebase = 'http://' + req.headers.Host + '/' + req.path[0] + '/_design/'+req.path[2]+'/'; 
+	var ddoc = req.path[2];
+	var codebase = 'http://' + req.headers.Host + '/' + req.path[0] + '/_design/'+ddoc+'/'; 
 	var defaults = { codebase : codebase, href : '_show/takeout.jnlp/_design/takeout-settings.jnlp'  }; 
 	var result = '<?xml version=\"1.0\" encoding=\"utf-8\"?>'; 
 	result += '<jnlp spec=\"1.5+\" codebase=\"'+codebase+'\" href=\"'+defaults.href+'\">'; 
@@ -33,6 +34,9 @@ function(doc, req) {
     if (advanced.embedded) {
        var extended = 'http://' + req.headers.Host + '/' + req.path[0] + '/_design/takeout-extended/_show/JxBrowser.jnlp';
        result += '   <extension name=\"jxbrowser\" href=\"' + extended + '\"/>';
+    }
+    if (ddoc != 'takeout') {
+    	result += '   <property name=\"jnlp.ddoc\" value=\"'+ ddoc +'\"/>';
     }
 	result += '</resources>';
 	result += '  <application-desc main-class=\"'+advanced['main-class']+'\">';

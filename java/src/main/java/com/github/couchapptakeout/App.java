@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -67,17 +68,20 @@ public class App {
     String localDbName;
     String local_username;
     String local_password;
+    String ddoc = "takeout";
     boolean sync = true;
     LocalCouch localCouchManager;
     Splash splash;
     AuthenticationDialog dialog;
 
 
+    String rootLocalUrl;
     String applicationUrl;
     ImageIcon appIcon;
     ImageIcon splashIcon;
     boolean hadToLoad = false;
     CouchDbInstance couchDbInstance;
+    
 
 
     public App(String appName, String src_host, String src_db, int src_port, String src_username) {
@@ -93,6 +97,10 @@ public class App {
         lcm.setCouchDownloader(bcd);
         lcm.setUnzipper(unzipper);
         localCouchManager = lcm;
+        String localDDoc = System.getProperty("jnlp.ddoc");
+        if (StringUtils.isNotEmpty(localDDoc)) {
+            ddoc = localDDoc;
+        }
     }
 
     public void setLocalCouchManager(LocalCouch localCouchManager) {
@@ -118,18 +126,18 @@ public class App {
 
     public void start() throws Exception {
         // always listen for the exit application message
-        EventBus.subscribeStrongly(ExitApplicationMessage.class, new EventSubscriber<ExitApplicationMessage>() {
+        EventBus.subscribeStrongly(ShutDownMessage.class, new EventSubscriber<ShutDownMessage>() {
            @Override
-            public void onEvent(ExitApplicationMessage t) {
+            public void onEvent(ShutDownMessage t) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(200);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                Logger.getLogger(App.class.getName()).log(Level.INFO, "We should really shut down");
                 System.exit(0);
             }
         });
-        
         try {
             showSplashDialog();
 
@@ -271,12 +279,12 @@ public class App {
         return  new ReplicationCommand.Builder()
                     .source(src_url)
                     .target(targetdb)
-                    .filter("takeout/not_takeout")
+                    .filter(ddoc + "/not_takeout")
                     .build();
     }
 
 
-    protected void startSync(CouchDbConnector localdb, CouchDbInstance instance, String syncType) {
+    protected void startSync(CouchDbConnector localdb, CouchDbInstance instance, String syncType, String pullFilter, String pushFilter) {
 
         Logger.getLogger(App.class.getName()).log(Level.INFO, "Sync Type: {0}", syncType);
 
@@ -295,6 +303,9 @@ public class App {
                 pull.put("source", src_fullurl);
                 pull.put("target", localDbName);
                 pull.put("continuous", true);
+                if (StringUtils.isNotEmpty(pullFilter)) {
+                    pull.put("filter", pullFilter);
+                }
                 rep_db.create(pull);
             }
             if (StringUtils.equalsIgnoreCase(syncType, "bi-directional") || StringUtils.equalsIgnoreCase(syncType, "push")) {
@@ -304,6 +315,9 @@ public class App {
                 push.put("target", src_fullurl);
                 push.put("source", localDbName);
                 push.put("continuous", true);
+                if (StringUtils.isNotEmpty(pushFilter)) {
+                    push.put("filter", pushFilter);
+                }
                 rep_db.create(push);
             }
         } catch(org.ektorp.UpdateConflictException uce) {
@@ -316,7 +330,17 @@ public class App {
 
     protected void ready(CouchDbConnector db) {
 
-       
+        EventBus.subscribeStrongly(ShowApplicationUrlMessage.class, new EventSubscriber<ShowApplicationUrlMessage>() {
+           @Override
+            public void onEvent(ShowApplicationUrlMessage t) {
+                try {
+                    URL dest = new URL(rootLocalUrl + t.getRelativeUrl());
+                    showUrl(dest);
+                } catch (MalformedURLException ex) {
+                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
 
         // get the main design doc
         JsonNode design = db.get(JsonNode.class, "_design/takeout-settings.jnlp");
@@ -329,7 +353,8 @@ public class App {
             Logger.getLogger(App.class.getName()).log(Level.WARNING, "Could not find localStartUrl", ex);
         }
 
-        applicationUrl = "http://localhost:" + localCouchManager.getCouchPort() + "/" + db.getDatabaseName() + localStartUrl;
+        rootLocalUrl = "http://localhost:" + localCouchManager.getCouchPort() + "/" + db.getDatabaseName();
+        applicationUrl = rootLocalUrl + localStartUrl;
 
 
         if (appIcon == null) {
@@ -370,14 +395,26 @@ public class App {
         //lastly, if had to load, setup replication
         if (hadToLoad) {
             String syncType = "bi-directional";
+            String pullFilter = null;
+            String pushFilter = null;
             try {
                 syncType = design.get("advanced").get("syncType").getTextValue();
+                
+                JsonNode pf = design.get("advanced").get("pull-filter");
+                if (pf != null) {
+                    pullFilter = pf.getTextValue();
+                }
+                pf = design.get("advanced").get("push-filter");
+                if (pf != null) {
+                    pushFilter = pf.getTextValue();
+                }
+
 
             } catch (Exception ex) {
                 Logger.getLogger(App.class.getName()).log(Level.WARNING, "Could not find localStartUrl", ex);
             }
 
-            startSync(db, couchDbInstance, syncType);
+            startSync(db, couchDbInstance, syncType, pullFilter, pushFilter);
 
             // put a local doc to so the app can query to see if it is running local
             try {
@@ -397,7 +434,7 @@ public class App {
             String appClass = design.get("advanced").get("appClass").getTextValue();
             Class clazz = ClassUtils.getClass(appClass);
             Object instance = clazz.newInstance();
-            MethodUtils.invokeMethod(instance, "start", db);
+            MethodUtils.invokeMethod(instance, "start", new Object[]{db, couchDbInstance });
         } catch (Exception e ) {
             
         }
@@ -498,23 +535,7 @@ public class App {
 
         return builder.toString();
     }
-    protected String getSrcIconUrl() {
-      String protocol = "http";
 
-        StringBuilder builder = new StringBuilder(protocol);
-        builder.append("://");
-        builder.append(src_host);
-        int couchPort = src_port;
-        if (couchPort <= 0) couchPort = 5984;
-
-        builder.append(":").append(couchPort);
-
-        builder.append("/");
-        builder.append(src_db);
-        builder.append("/_design/takeout/icon.png");
-
-        return builder.toString();
-    }
     public CouchDbConnector getSrcConnector() {
         int couchPort = src_port;
         if (couchPort <= 0) couchPort = 5984;
@@ -661,12 +682,7 @@ public class App {
     }
 
 
-    private void setIconForDialogs() {
-        String url = getSrcIconUrl();
-        try {
-            appIcon = createImage(url);
-        } catch (Exception e) {}
-    }
+
 
     private void showEmbedded(String applicationUrl) {
         final EmbeddedBrowser browser = new EmbeddedBrowser();
