@@ -366,12 +366,23 @@ public class App {
                 Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
 
-
-
+        // put a local doc to so the app can query to see if it is running local
+        String syncType = design.get("advanced").get("syncType").getTextValue();
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode takeoutLocal = mapper.createObjectNode();
+            takeoutLocal.put("_id", "_local/takeout");
+            takeoutLocal.put("source", getSrcReplicationUrl(false));
+            takeoutLocal.put("syncType", syncType);
+            couchDbInstance.getConnection().put("/" + db.getDatabaseName() + "/_local/takeout", takeoutLocal.toString());
+        } catch (Exception ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
+
+        // Show the application
+        try {
 
             boolean embedded = isEmbeddedRequested(design);
             if (embedded) {
@@ -394,12 +405,10 @@ public class App {
 
         //lastly, if had to load, setup replication
         if (hadToLoad) {
-            String syncType = "bi-directional";
+
             String pullFilter = null;
             String pushFilter = null;
             try {
-                syncType = design.get("advanced").get("syncType").getTextValue();
-                
                 JsonNode pf = design.get("advanced").get("pull-filter");
                 if (pf != null) {
                     pullFilter = pf.getTextValue();
@@ -408,27 +417,11 @@ public class App {
                 if (pf != null) {
                     pushFilter = pf.getTextValue();
                 }
-
-
             } catch (Exception ex) {
                 Logger.getLogger(App.class.getName()).log(Level.WARNING, "Could not find localStartUrl", ex);
             }
 
             startSync(db, couchDbInstance, syncType, pullFilter, pushFilter);
-
-            // put a local doc to so the app can query to see if it is running local
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                ObjectNode takeoutLocal = mapper.createObjectNode();
-                takeoutLocal.put("_id", "_local/takeout");
-                takeoutLocal.put("source", getSrcReplicationUrl(false));
-                takeoutLocal.put("syncType", syncType);
-                couchDbInstance.getConnection().put("/" + db.getDatabaseName() + "/_local/takeout", takeoutLocal.toString());
-            } catch (Exception ex) {
-                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-
         }
         try {
             String appClass = design.get("advanced").get("appClass").getTextValue();
