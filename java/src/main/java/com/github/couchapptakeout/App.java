@@ -607,6 +607,7 @@ public class App {
         menuItems.add(createSiteMenuItem(appName));
         menuItems.add(Tray.MENU_SEPERATOR);
         menuItems.add(createExitMenuItem());
+        menuItems.add(Tray.MENU_SEPERATOR);
 
         return menuItems;
     }
