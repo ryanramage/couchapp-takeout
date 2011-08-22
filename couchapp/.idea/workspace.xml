@@ -23,64 +23,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/html/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="8" selection-start="342" selection-end="342" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="takeout.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/html/takeout.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="5" selection-start="491" selection-end="491" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="install.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/html/install.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="33" column="9" selection-start="1179" selection-end="1179" vertical-scroll-proportion="-0.5714286">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="show_takeout.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/show_takeout.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="10" selection-start="859" selection-end="859" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="reupholster.json" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/reupholster.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="1" column="0" selection-start="139" selection-end="139" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="_design-app.json" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/_design-app.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="31" column="0" selection-start="3348" selection-end="3348" vertical-scroll-proportion="0.5224719">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="takeout-settings.jnlp.json" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/docs/_design/takeout-settings.jnlp.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="5" selection-start="391" selection-end="391" vertical-scroll-proportion="0.0">
+            <state line="33" column="0" selection-start="3370" selection-end="3474" vertical-scroll-proportion="0.55617976">
               <folding />
             </state>
           </provider>
@@ -98,7 +44,6 @@
       <list>
         <option value="$PROJECT_DIR$/_design-takeout.json" />
         <option value="$PROJECT_DIR$/html/index.html" />
-        <option value="$PROJECT_DIR$/reupholster.json" />
         <option value="$PROJECT_DIR$/html/styles.css" />
         <option value="$PROJECT_DIR$/show_takeout.js" />
         <option value="$PROJECT_DIR$/html/takeout.js" />
@@ -107,6 +52,7 @@
         <option value="$PROJECT_DIR$/html/install.html" />
         <option value="$PROJECT_DIR$/html/text.txt" />
         <option value="$PROJECT_DIR$/_design-app.json" />
+        <option value="$PROJECT_DIR$/reupholster.json" />
       </list>
     </option>
   </component>
@@ -136,8 +82,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Favorites" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -156,40 +100,10 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="couchapp" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="couchapp" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="html" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="couchapp" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="couchapp" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="docs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="_design" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Favorites" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -225,7 +139,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="22" width="1440" height="874" extended-state="1" />
+    <frame x="0" y="22" width="1440" height="874" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -283,54 +197,52 @@
         <state line="16" column="20" selection-start="216" selection-end="216" vertical-scroll-proportion="0.26482758" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/html/index.html">
+    <entry file="file://$PROJECT_DIR$/html/text.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="8" selection-start="342" selection-end="342" vertical-scroll-proportion="0.0">
+        <state line="0" column="1" selection-start="1" selection-end="1" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/_design/takeout-settings.jnlp.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="5" selection-start="391" selection-end="391" vertical-scroll-proportion="0.19862069" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/show_takeout.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="10" selection-start="859" selection-end="859" vertical-scroll-proportion="0.26966292">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/html/install.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="33" column="9" selection-start="1179" selection-end="1179" vertical-scroll-proportion="0.017366135">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/html/takeout.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="5" selection-start="491" selection-end="491" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/html/install.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="9" selection-start="1179" selection-end="1179" vertical-scroll-proportion="-0.5714286">
+        <state line="21" column="5" selection-start="491" selection-end="491" vertical-scroll-proportion="0.24827586">
           <folding />
         </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/html/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="8" selection-start="342" selection-end="342" vertical-scroll-proportion="0.17045455" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/reupholster.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="0" selection-start="139" selection-end="139" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/html/text.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="1" selection-start="1" selection-end="1" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/show_takeout.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="10" selection-start="859" selection-end="859" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docs/_design/takeout-settings.jnlp.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="5" selection-start="391" selection-end="391" vertical-scroll-proportion="0.0">
+        <state line="1" column="0" selection-start="95" selection-end="95" vertical-scroll-proportion="0.016551724">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/_design-app.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="0" selection-start="3348" selection-end="3348" vertical-scroll-proportion="0.5224719">
+        <state line="33" column="0" selection-start="3370" selection-end="3474" vertical-scroll-proportion="0.55617976">
           <folding />
         </state>
       </provider>

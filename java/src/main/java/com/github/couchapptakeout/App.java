@@ -15,11 +15,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -39,6 +41,7 @@ import org.bushe.swing.event.ThreadSafeEventService;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
+import org.ektorp.AttachmentInputStream;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbInfo;
@@ -189,9 +192,13 @@ public class App {
                 db = localCouchManager.getCouchConnector(localDbName, couchDbInstance);
                 db.createDatabaseIfNotExists();
             }
-           
-            // init one time replicate
+
+
+            // handle design docs very differently.
             EventBus.publish(new LoadingMessage(step++, totalSteps, "Downloading Data", 0, 0, "Copy data from " + getSrcReplicationUrl(false) ));
+            copyDesignDocs(getSrcConnector(), db);
+
+            // init one time replicate    
             setupReplication(couchDbInstance, db);
 
 
@@ -206,6 +213,10 @@ public class App {
             ReplicationCommand firstReplication = createSrcReplication(src_fullurl, db.getDatabaseName());
 
             try {
+
+                System.out.println(firstReplication.toString());
+
+
                 // on large dbs, this times out
                 // broken waiting for ektorp to fix!!!
                 // We need to catch the error, and poll the couch
@@ -279,7 +290,7 @@ public class App {
         return  new ReplicationCommand.Builder()
                     .source(src_url)
                     .target(targetdb)
-                    .filter(ddoc + "/not_takeout")
+                    .filter(ddoc + "/not_design")
                     .build();
     }
 
@@ -425,11 +436,13 @@ public class App {
         }
         try {
             String appClass = design.get("advanced").get("appClass").getTextValue();
+            System.out.println("Starting app class: " + appClass);
+
             Class clazz = ClassUtils.getClass(appClass);
             Object instance = clazz.newInstance();
             MethodUtils.invokeMethod(instance, "start", new Object[]{db, couchDbInstance });
         } catch (Exception e ) {
-            
+            e.printStackTrace();
         }
     }
 
@@ -535,6 +548,7 @@ public class App {
         StdHttpClient.Builder builder = new StdHttpClient.Builder()
                                     .host(src_host)
                                     .port(couchPort);
+
         if (src_username != null && src_username != "") {
             builder.username(src_username);
             builder.password(src_password);
@@ -710,6 +724,84 @@ public class App {
     }
 
 
+    protected void copyDesignDocs(CouchDbConnector src, CouchDbConnector dest) {
+        String cachedUrl = getSrcReplicationUrl(false);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        ViewQuery query = new ViewQuery();
+        query.allDocs().startKey("_design").endKey("_design0").includeDocs(true);
+        ViewResult result = src.queryView(query);
+
+        int totalAttachments = countAttachments(result);
+
+        System.out.println("Total Attachments: " + totalAttachments);
+
+        int currentAttachment = 0;
+
+        for (Row row : result) {
+            if (!row.getId().equals("_design/takeout")) {
+                System.out.println("Copy : " + row.getId());
+                ObjectNode design = (ObjectNode)row.getDocAsNode();
+
+                String targetRev = design.get("_rev").getTextValue();
+                int targetRevNum = parseRevNumber(targetRev);
+                System.out.println("Target Rev: " + targetRev);
+                design.remove("_rev");
+
+                JsonNode attachments = mapper.createObjectNode();
+
+                if (design.has("_attachments")) {
+                    attachments = design.get("_attachments");
+                }
+                design.remove("_attachments");
+
+                dest.create(design);
+
+                for (Iterator<String> i = attachments.getFieldNames(); i.hasNext(); ) {
+                    String attachmentName = i.next();
+                    
+                    EventBus.publish(new LoadingMessage(0, 0, "Downloading Data", currentAttachment++, totalAttachments, "Copy data from " + cachedUrl ));
+                    System.out.println("Copy attachment  " + currentAttachment  +   " : " + attachmentName);
+                    AttachmentInputStream in = src.getAttachment(row.getId(), attachmentName);
+
+                    String rev = dest.createAttachment(row.getId(), design.get("_rev").getTextValue() , in);
+                    try {
+                        in.close();
+                    } catch (IOException ex) {
+                        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    design.put("_rev", rev);
+                }
+
+                String currentRev = design.get("_rev").getTextValue();
+                int currentRevNum = parseRevNumber(currentRev);
+            }
+        }
+    }
+
+
+
+    protected int countAttachments(ViewResult result) {
+        int count = 0;
+        for (Row row : result) {
+            if (!row.getId().equals("_design/takeout")) {
+                ObjectNode design = (ObjectNode)row.getDocAsNode();
+                if (design.has("_attachments")) {
+                    JsonNode attachments = design.get("_attachments");
+                    count += attachments.size();
+                }
+            }
+        }
+        return count;
+    }
+
+
+
+    private int parseRevNumber(String revNumber) {
+        String num = revNumber.split("-")[0];
+        return Integer.parseInt(num);
+    }
 
 
 

@@ -1,1 +1,1 @@
-{"couch":{"host":"localhost","port":6984,"db":"takeout", "username" : "admin", "password" : "admin"}, "designDocName" : "_design/takeout"}
+{"couch":{"host":"localhost","port":5984,"db":"takeout"}, "designDocName" : "_design/takeout"}

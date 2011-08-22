@@ -31,6 +31,6 @@
        "test" : "function(doc, req) { if(!doc) {return 'empty'} return doc._id}"
    },
    "filters": {
-       "not_takeout": "function (doc, req) { if (doc._id == \"_design/takeout\" || doc._id == \"_design/takeout-extended\") { return false; } return true; } "
+       "not_design": "function (doc, req) { if (doc._id[0] == \"_\" ) { return false; } return true; } "
    }
 }

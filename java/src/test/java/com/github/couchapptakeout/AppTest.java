@@ -72,7 +72,41 @@ public class AppTest {
         CouchDbInstance couch = new StdCouchDbInstance(httpClient);
         CouchDbConnector connector = couch.createConnector("test-choose", true);
         app2.setupReplication(couch, connector);
+
+
+
+
         
+    }
+
+
+
+    public void testCopyDesignDocs() {
+        App app2 = new App("App Name", "localhost", "ecko-it", 5984, null);
+
+         HttpClient httpClient1 = new StdHttpClient.Builder()
+                            .host("localhost")
+                            .port(5984)
+                            .build();
+        CouchDbInstance couch1 = new StdCouchDbInstance(httpClient1);
+        CouchDbConnector connector1 = couch1.createConnector("ecko-it", false);
+
+
+
+        HttpClient httpClient2 = new StdHttpClient.Builder()
+                            .host("localhost")
+                            .port(5984)
+                            .build();
+        CouchDbInstance couch2 = new StdCouchDbInstance(httpClient2);
+        try {
+            couch2.deleteDatabase("eckoit-clone");
+        } catch(Exception ignore) {}
+        
+        CouchDbConnector connector2 = couch2.createConnector("eckoit-clone", true);
+        app2.copyDesignDocs(connector1, connector2);
+
+        app2.setupReplication(couch2, connector2);
+
     }
 
 
@@ -102,7 +136,13 @@ public class AppTest {
         expect(mock.getCouchConnector(app.createLocalDbName(), couchMock)).andReturn(connectorMock);
         app.setLocalCouchManager(mock);
     }
- 
+
+
+
+
+
+
+
 
     // Some scenarios to consider
 

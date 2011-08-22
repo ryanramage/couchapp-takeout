@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.SystemUtils;
+import org.bushe.swing.event.EventBus;
+import org.bushe.swing.event.EventSubscriber;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 import org.ektorp.http.HttpClient;
@@ -63,6 +65,7 @@ public class DefaultCouchManager implements LocalCouch{
         if (haveEmbeddedCouch()) {
 
             if (isLocalCouchRunning()) {
+
                 return getLocalCouchInstance();
             }
 
@@ -80,6 +83,14 @@ public class DefaultCouchManager implements LocalCouch{
         }
         // check for local couch on 5984, use that
         if (isLocalCouchRunning()) {
+            // create a annon listener
+            EventBus.subscribeStrongly(ExitApplicationMessage.class, new EventSubscriber<ExitApplicationMessage>() {
+                @Override
+                public void onEvent(ExitApplicationMessage t) {
+                    System.out.println("Exiting Local DB");
+                    EventBus.publish(new ShutDownMessage());
+                }
+            });
             return getLocalCouchInstance();
         }
         // no luck

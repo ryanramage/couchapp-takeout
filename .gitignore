@@ -1,4 +1,4 @@
 # Generic Maven ignores
 target/
-couchapp/.idea/
+java/velocity.log
 
