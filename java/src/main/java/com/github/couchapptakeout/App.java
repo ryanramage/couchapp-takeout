@@ -104,6 +104,21 @@ public class App {
         if (StringUtils.isNotEmpty(localDDoc)) {
             ddoc = localDDoc;
         }
+
+        // always listen for the exit application message
+        EventBus.subscribeStrongly(ShutDownMessage.class, new EventSubscriber<ShutDownMessage>() {
+           @Override
+            public void onEvent(ShutDownMessage t) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                Logger.getLogger(App.class.getName()).log(Level.INFO, "We should really shut down");
+                System.exit(0);
+            }
+        });
+
     }
 
     public void setLocalCouchManager(LocalCouch localCouchManager) {
@@ -128,19 +143,7 @@ public class App {
 
 
     public void start() throws Exception {
-        // always listen for the exit application message
-        EventBus.subscribeStrongly(ShutDownMessage.class, new EventSubscriber<ShutDownMessage>() {
-           @Override
-            public void onEvent(ShutDownMessage t) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                Logger.getLogger(App.class.getName()).log(Level.INFO, "We should really shut down");
-                System.exit(0);
-            }
-        });
+
         try {
             showSplashDialog();
 

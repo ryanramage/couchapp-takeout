@@ -65,7 +65,7 @@ public class DefaultCouchManager implements LocalCouch{
         if (haveEmbeddedCouch()) {
 
             if (isLocalCouchRunning()) {
-
+                setupShutdownHook();
                 return getLocalCouchInstance();
             }
 
@@ -77,26 +77,57 @@ public class DefaultCouchManager implements LocalCouch{
                 }
                 new Thread(runner).start();
                 couchStarted = true;
+                setupShutdownHookForLocal();
             }
             // wait for couch
             return waitForEmbeddedCouch();
         }
         // check for local couch on 5984, use that
         if (isLocalCouchRunning()) {
-            // create a annon listener
-            EventBus.subscribeStrongly(ExitApplicationMessage.class, new EventSubscriber<ExitApplicationMessage>() {
-                @Override
-                public void onEvent(ExitApplicationMessage t) {
-                    System.out.println("Exiting Local DB");
-                    EventBus.publish(new ShutDownMessage());
-                }
-            });
+            setupShutdownHook();
             return getLocalCouchInstance();
         }
         // no luck
         throw new CouchDBNotFoundException();
                 
     }
+
+    protected void setupShutdownHookForLocal() {
+       // create a annon listener
+        EventBus.subscribeStrongly(ExitApplicationMessage.class, new EventSubscriber<ExitApplicationMessage>() {
+            @Override
+            public void onEvent(ExitApplicationMessage t) {
+                System.out.println("Exiting Local DB");
+                // wait for the local db to shutdown
+                for (int i=0; i < 4; i++) {
+                    try {
+                        Thread.sleep(1000);
+                        if (!isLocalCouchRunning()) {
+                            System.out.println("Local couch shutdown successfully");
+                            break;
+                        } else {
+                            System.out.println("Waiting for local couch to shutdown");
+                        }
+                    } catch (Exception e) {}
+
+                }
+                EventBus.publish(new ShutDownMessage());
+            }
+        });
+    }
+
+    
+    protected void setupShutdownHook() {
+        // create a annon listener
+        EventBus.subscribeStrongly(ExitApplicationMessage.class, new EventSubscriber<ExitApplicationMessage>() {
+            @Override
+            public void onEvent(ExitApplicationMessage t) {
+                System.out.println("Exiting Local DB");
+                EventBus.publish(new ShutDownMessage());
+            }
+        });
+    }
+
 
     @Override
     public void installCouchDbEmbedded() throws CouchDbInstallException {
