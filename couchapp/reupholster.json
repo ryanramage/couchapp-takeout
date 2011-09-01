@@ -1,1 +1,16 @@
-{"couch":{"host":"localhost","port":5984,"db":"takeout"}, "designDocName" : "_design/takeout"}
+{
+  designDocName : "_design/takeout",
+  couch : {
+    host : "localhost",
+    port : 5984,
+    db : "takeout"
+  },
+  stages : {
+    production : {
+      host : "ecko-it.iriscouch.com",
+      port : 5984,
+      db : "takeout",
+      username : "test"
+    }
+  }
+}
