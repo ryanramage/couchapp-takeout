@@ -12,9 +12,10 @@ http://ecko-it.couchone.com:5984/couchtasks/_design/takeout/install.html
 
 
 You can add it into your couchapp in about two minutes. 
-Here is how to get started:
 
-## Replicate Couchapp-Takeout into your application
+# How to use
+
+### Replicate Couchapp-Takeout into your application
 
 replicate this database into your couchapp:
 http://ecko-it.iriscouch.com/takeout
@@ -26,7 +27,7 @@ It has two design docs:
 
 so make sure these do not conflict with any of your existing design docs.
 
-## Configure Couchapp-Takeout 
+### Configure Couchapp-Takeout 
 
 Edit the design document _design/takeout-settings.jnlp in your database. Here are the settings to change:
 
@@ -58,13 +59,13 @@ You could have a sepereate design doc like _design/installed/index.html
 * 'push' not sure when this would be usefull, but for completeness.
 * 'none' no replication is started.
 
-## Brand Couchapp-Takeout 
+### Brand Couchapp-Takeout 
 
 On the design doc '_design/takeout-settings.jnlp', replace the two attachements called logo.png and splash.png with your own logo and splash image. 
 Keep the names exactly the same.
 
 
-## Link to your install page. 
+### Link to your install page. 
 
 You will now have a install page ready to give to users. 
 
@@ -72,7 +73,6 @@ _design/takeout/install.html
 
 
 
-```
 
 
 Some notes:
