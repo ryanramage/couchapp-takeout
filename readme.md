@@ -79,7 +79,7 @@ _design/takeout/install.html
 
 * End users will need to have up to date java on their machine. All mac osx meet this requirement, and most windows users will have it installed.
 * Currently we only have couch binaries for windows and mac. Other operating systems to come.
-* If you have a couch installed locally on port 5984 couchapp-desktop will just reuse that db. If you to see the full install, turn off couch on that port. A new couch will be installed on a random port.
+* If you have a couch installed locally on port 5984 couchapp-desktop will just install into that db. If you experience the full install, turn off couch on that port. A new couch will be installed on a random port.
 
 
 
