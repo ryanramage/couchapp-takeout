@@ -3,17 +3,17 @@ Couchapp Takeout provides couchapps with an installer and desktop experience.
 From one link in your couchapp, it will install all the pieces on an end users computer, to run it locally. It solves these problems:
 
 * Do you have a couchapp that you want to distribute to end users?
-* Want a simple way for users to use your couchapp online and offline?
-* Do you want to provide a way for a user to liberate their data?
+* Do you want updates be pushed to them automatically?
+* [Optional] Do you want to have their local data sync with an online couch?
 
 If you want to see it on an existing application, install 'Couch Tasks' on your computer:
 
 http://ecko-it.couchone.com:5984/couchtasks/_design/takeout/install.html
 
 
-You can add it into your couchapp in about two minutes. 
-
 # How to use
+
+You can add an installer to your couchapp in about two minutes.
 
 ### Replicate Couchapp-Takeout into your application
 
@@ -54,10 +54,10 @@ You could have a sepereate design doc like _design/installed/index.html
 
 *syncType* is the type of continuous replication that is started on the users machine to the couchdb it was launched from. Valid values are:
 
-* 'bi-directional' useful for online/offline style applications. The perfect fit for couch!
-* 'pull' useful for when you dont want to host user data, but want to distrubte your couchapp to end users. Allows them to receive updates to the couchapp automatically.
+* 'bi-directional' useful for online/offline style applications. Users local changes will be synced with the database takeout is installed from.
+* 'pull' useful want to just distrubte your couchapp to end users. Allows them to receive updates to their local couchapp automatically, when the online couchapp is updated.
 * 'push' not sure when this would be usefull, but for completeness.
-* 'none' no replication is started.
+* 'none' no continuous replication is started.
 
 ### Brand Couchapp-Takeout 
 
@@ -75,7 +75,7 @@ _design/takeout/install.html
 
 
 
-Some notes:
+# Some notes:
 
 * End users will need to have up to date java on their machine. All mac osx meet this requirement, and most windows users will have it installed.
 * Currently we only have couch binaries for windows and mac. Other operating systems to come.
@@ -83,9 +83,14 @@ Some notes:
 
 
 
+# Future
 
+On the install page, if a mobile os is detected, have some what of generating a link, or intent, that takes them to a mobile couch in the app store, and somehow passes the replication params.
 
+Maybe try and intgreate with other less 'heavyweight' replicators, like
 
+* https://github.com/drsm79/ReplicateMe
+* https://chrome.google.com/webstore/detail/clbdmcdmjlpgedncppkbkepbilnhgddh
 
 
 ## License
