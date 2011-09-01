@@ -80,17 +80,22 @@ _design/takeout/install.html
 * End users will need to have up to date java on their machine. All mac osx meet this requirement, and most windows users will have it installed.
 * Currently we only have couch binaries for windows and mac. Other operating systems to come.
 * If you have a couch installed locally on port 5984 couchapp-desktop will just install into that db. If you experience the full install, turn off couch on that port. A new couch will be installed on a random port.
-
+* CouchDB is installed in .couchapptakeout in the users home directory.
 
 
 # Future
 
 On the install page, if a mobile os is detected, have some what of generating a link, or intent, that takes them to a mobile couch in the app store, and somehow passes the replication params.
 
+Lanuch with an embedded browser in a application window. This can be done currently, but not at the point were it should be done. :)
+
 Maybe try and intgreate with other less 'heavyweight' replicators, like
 
 * https://github.com/drsm79/ReplicateMe
 * https://chrome.google.com/webstore/detail/clbdmcdmjlpgedncppkbkepbilnhgddh
+
+
+Have it also run couchdb-lucene or elasticsearch and wire up a httpd_global_handlers. 
 
 
 ## License
