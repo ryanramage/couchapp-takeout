@@ -190,21 +190,16 @@
                     <artifactId>xSocket</artifactId>
                     <groupId>org.xsocket</groupId>
                 </exclusion>
-                <exclusion>
-                    <artifactId>xlightweb</artifactId>
-                    <groupId>org.xlightweb</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>simple</artifactId>
-                    <groupId>org.simpleframework</groupId>
-                </exclusion>
+
             </exclusions>
         </dependency>
+        <!--
         <dependency>
           <groupId>org.xlightweb</groupId>
           <artifactId>xlightweb</artifactId>
           <version>2.13</version>
         </dependency>
+        -->
     </dependencies>
     <repositories>
         <repository>

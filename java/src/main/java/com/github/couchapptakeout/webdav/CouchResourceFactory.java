@@ -20,7 +20,7 @@ import org.ektorp.CouchDbConnector;
 public class CouchResourceFactory implements ResourceFactory{
 
     public enum ResourceType {
-        ALLDOCS, DOCUMENT, ATTACHMENT
+        ALLDOCS, DESIGN_ROOT, DOCUMENT, ATTACHMENT
     }
    
 
@@ -53,13 +53,14 @@ public class CouchResourceFactory implements ResourceFactory{
             switch(rt) {
                 case ALLDOCS: return new AllDocsDirectoryResource(connector,host, this);
                 case DOCUMENT: return new DocumentAttachmentCollection(url, host, connector);
+                case DESIGN_ROOT: return new DesignDocRoot(connector, host, this);
                 case ATTACHMENT: {
                     String[] daa = splitDocAndAttachment(url);
                     return new AttachmentResource(daa[1], host, connector, daa[0]);
                 }
             }
         } catch (Exception e) {
-            //e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         System.out.println("Why here? Why now?");
         return null;
@@ -88,11 +89,17 @@ public class CouchResourceFactory implements ResourceFactory{
 
         if (StringUtils.isEmpty(url)) return ResourceType.ALLDOCS;
 
+        if (url.equals("_design") || url.equals("_design/") ) return ResourceType.DESIGN_ROOT;
+
+
         String[] results = url.split("/");
         if (results.length == 1) {
             return ResourceType.DOCUMENT;
         }
         if (results.length > 1) {
+            if ("_design".equals(results[0])) {
+                return ResourceType.DOCUMENT;
+            }
             return ResourceType.ATTACHMENT;
         }
         return ResourceType.ALLDOCS;
