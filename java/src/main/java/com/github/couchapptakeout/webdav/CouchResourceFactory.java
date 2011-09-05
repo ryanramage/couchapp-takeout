@@ -62,7 +62,7 @@ public class CouchResourceFactory implements ResourceFactory{
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        System.out.println("Why here? Why now?");
+
         return null;
 
 

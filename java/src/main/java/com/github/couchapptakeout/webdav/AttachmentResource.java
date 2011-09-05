@@ -19,6 +19,7 @@ import com.bradmcevoy.http.LockableResource;
 import com.bradmcevoy.http.MoveableResource;
 import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.PropPatchableResource;
+import com.bradmcevoy.http.PutableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
@@ -32,10 +33,14 @@ import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.http.webdav.PropPatchHandler.Fields;
 import com.ettrema.http.fs.NullSecurityManager;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
 import org.ektorp.AttachmentInputStream;
@@ -45,7 +50,7 @@ import org.ektorp.CouchDbConnector;
  *
  * @author ryan
  */
-public class AttachmentResource implements Resource, CopyableResource, DeletableResource, GetableResource, MoveableResource, PropFindableResource, PropPatchableResource, LockableResource, DigestResource {
+public class AttachmentResource implements Resource, CopyableResource, DeletableResource, GetableResource, MoveableResource, PropFindableResource, PropPatchableResource, LockableResource, DigestResource{
 
 
     String name;
@@ -53,15 +58,28 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     CouchDbConnector connector;
     String docId;
     private NullSecurityManager security = new NullSecurityManager();
+
+    JsonNode attachmentInfo;
+    Date createDate = new Date();
     
 
-
     AttachmentResource(String name, String host, CouchDbConnector connector, String docId) {
+
+        if (name.startsWith("._")) {
+            throw new RuntimeException("Not a mac drive");
+        }
+
         System.out.println("Attachement resource on " + docId + " with name " + name);
         this.name = name;
         this.connector = connector;
         this.docId = docId;
         this.host = host;
+
+        JsonNode object = connector.get(JsonNode.class, docId);
+        attachmentInfo =  object.get("_attachments").get(name);
+        if (attachmentInfo == null) {
+            throw new RuntimeException("Attachment does not exisit");
+        }
     }
 
 
@@ -98,7 +116,7 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     @Override
     public Date getModifiedDate() {
         System.out.println("attach get mod date");
-        return new Date();
+        return createDate;
     }
 
     @Override
@@ -108,9 +126,20 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     }
 
     @Override
-    public void copyTo(CollectionResource cr, String string) throws NotAuthorizedException, BadRequestException, ConflictException {
+    public void copyTo(CollectionResource cr, String newName) throws NotAuthorizedException, BadRequestException, ConflictException {
+        System.out.println("copy to");
         if ( cr instanceof DocumentAttachmentCollection) {
+            
+
+            AttachmentInputStream ais = connector.getAttachment(docId, name);
+
             DocumentAttachmentCollection dac = (DocumentAttachmentCollection) cr;
+            try {
+                dac.createNew(newName, ais, getContentLength(), getContentType(""));
+            } catch (IOException ex) {
+                Logger.getLogger(AttachmentResource.class.getName()).log(Level.SEVERE, null, ex);
+                throw new BadRequestException(cr);
+            }
             
         } else {
             throw new RuntimeException("Destination must be a Document");
@@ -126,9 +155,11 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
 
     @Override
     public void sendContent(OutputStream out, Range range, Map<String, String> map, String string) throws IOException, NotAuthorizedException, BadRequestException {
-        JsonNode object = connector.get(JsonNode.class, docId);
 
-        AttachmentInputStream ais = connector.getAttachment(docId, object.get("_rev").getTextValue());
+        System.out.println("send content: " + name);
+
+
+        AttachmentInputStream ais = connector.getAttachment(docId, name);
         IOUtils.copy(ais, out);
         ais.close();
     }
@@ -141,23 +172,31 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
 
     @Override
     public String getContentType(String string) {
-        System.out.println("get content type");
+        try {
+            return attachmentInfo.get("content_type").getTextValue();
+        } catch (Exception e) {
+
+        }
         return "application/binary";
     }
 
     @Override
     public Long getContentLength() {
+        try {
+            return attachmentInfo.get("length").getLongValue();
+        } catch (Exception e) {}
         return null;
     }
 
     @Override
     public void moveTo(CollectionResource cr, String string) throws ConflictException, NotAuthorizedException, BadRequestException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        copyTo(cr, string);
+        delete();
     }
 
     @Override
     public Date getCreateDate() {
-        return new Date();
+        return createDate;
     }
 
     @Override
@@ -201,5 +240,6 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     public boolean isDigestAllowed() {
         return true;
     }
+
 
 }

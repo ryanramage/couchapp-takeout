@@ -129,6 +129,7 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
 
     @Override
     public CollectionResource createCollection(String name) throws NotAuthorizedException, ConflictException, BadRequestException {
+        System.out.println("Create Collection: " + name);
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         node.put("_id", name);
         connector.create(node);
@@ -139,7 +140,11 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
     @Override
     public Resource child(String id) {
         System.out.println("Get child: " + id);
-        return new DocumentAttachmentCollection(id, host, connector);
+        try {
+            return new DocumentAttachmentCollection(id, host, connector);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -186,7 +191,8 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
     @Override
     public String getContentType(String string) {
         System.out.println("Get cc type");
-        return "application/json";
+        //return "application/json";
+        return "httpd/unix-directory";
     }
 
     @Override

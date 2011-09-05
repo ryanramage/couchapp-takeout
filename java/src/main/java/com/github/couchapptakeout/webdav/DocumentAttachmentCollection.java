@@ -7,6 +7,7 @@ package com.github.couchapptakeout.webdav;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.CollectionResource;
+import com.bradmcevoy.http.DeletableResource;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.PropFindableResource;
@@ -38,7 +39,7 @@ import org.ektorp.CouchDbConnector;
  * @author ryan
  */
 public class DocumentAttachmentCollection implements CollectionResource, Resource, DigestResource,
-        PutableResource, PropFindableResource,  GetableResource {
+        PutableResource, PropFindableResource,  GetableResource, DeletableResource {
 
 
     private ObjectNode node;
@@ -47,25 +48,42 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     private NullSecurityManager security = new NullSecurityManager();
     private Date d = new Date();
 
+    String id;
+
+    public DocumentAttachmentCollection(ObjectNode node, CouchDbConnector connector, String host, String id) {
+        this.node = node;
+        this.connector = connector;
+        this.host = host;
+        this.id = id;
+    }
+
+
+
 
     DocumentAttachmentCollection(String id, String host, CouchDbConnector connector) {
+        this.id = id;
+        if (id.startsWith("._")) {
+            throw new RuntimeException("Not a mac drive");
+        }
+
         if (id.endsWith("/")) {
-            id = id.substring(0, id.length() - 1);
+            this.id  = this.id.substring(0, id.length() - 1);
         }
         if (id.startsWith("_design:")) {
-            id = id.replaceFirst("_design:", "_design/");
+            this.id  = this.id.replaceFirst("_design:", "_design/");
         }
 
 
         try {
-            System.out.println("Looking for doc: " + id);
-            ObjectNode node = connector.get(ObjectNode.class, id);
+            System.out.println("Looking for doc: " + this.id);
+            ObjectNode node = connector.get(ObjectNode.class, this.id);
             this.node = node;
             this.connector = connector;
             this.host = host;
         } catch (Exception e) {
-            System.out.println("The doc: " + id + " is not found");
-            throw new IllegalArgumentException("The doc: " + id + " is not found");
+            System.out.println("The doc: " + this.id + " is not found");
+            throw new IllegalArgumentException("The doc: " + this.id + " is not found");
+            //throw new
         }
     }
 
@@ -78,7 +96,7 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
 
     @Override
     public Resource child(String name) {
-        System.out.println("doc get name");
+        System.out.println("doc get child!");
         return new AttachmentResource(name, host, connector, node.get("_id").getTextValue());
     }
 
@@ -103,7 +121,8 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     @Override
     public String getName() {
         System.out.println("doc get id");
-        return node.get("_id").getTextValue();
+        //return node.get("_id").getTextValue();
+        return id;
     }
 
     @Override
@@ -145,7 +164,10 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
 
     @Override
     public Resource createNew(String name, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
+        System.out.println("doc create new attachement ");
+
         AttachmentInputStream ais = new AttachmentInputStream(name, in, contentType);
+
         connector.createAttachment(node.get("_id").getTextValue(), node.get("_rev").getTextValue(), ais);
         return new AttachmentResource(name, host, connector, node.get("_id").getTextValue());
 
@@ -172,7 +194,8 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     @Override
     public String getContentType(String string) {
         System.out.println("doc get created content type");
-        return "application/json";
+        //return "application/json";
+        return "httpd/unix-directory";
     }
 
     @Override
@@ -185,6 +208,11 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     public Object authenticate(DigestResponse dr) {
         System.out.println("doc get auth dr");
         return security.authenticate(dr);
+    }
+
+    @Override
+    public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
+        connector.delete(id, node.get("_rev").getTextValue());
     }
 
 }
