@@ -5,11 +5,13 @@
 
 package com.github.couchapptakeout.webdav;
 
+import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.github.couchapptakeout.App;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ektorp.CouchDbConnector;
 
@@ -19,16 +21,18 @@ import org.ektorp.CouchDbConnector;
  */
 public class CouchResourceFactory implements ResourceFactory{
 
-    public enum ResourceType {
-        ALLDOCS, DESIGN_ROOT, DOCUMENT, ATTACHMENT
-    }
-   
+
+   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CouchResourceFactory.class);
 
     private CouchDbConnector connector;
     String contextPath;
 
+    private AllDocsDirectoryResource ROOT;
+
+
     public CouchResourceFactory(CouchDbConnector connector) {
         this.connector = connector;
+        ROOT = new AllDocsDirectoryResource(connector, "localhost:8080", this);
     }
 
       public String getSupportedLevels() {
@@ -40,70 +44,65 @@ public class CouchResourceFactory implements ResourceFactory{
     public Resource getResource(String host, String url) {
         System.out.println("Request " + host + " url " + url);
 
-        url = trimContext(url);
-        System.out.println("Request " + host + " url " + url);
+        Path path = Path.path(url);
+        Resource r = find(host, path);
+        System.out.println("Found: " + r);
+        return r;
+    }
 
-        if ("favicon.ico".equals(url)) return null;
 
-        ResourceType rt = determineType(url);
+    private Resource find(String host, Path path) {
 
-        System.out.println("Resource type: " + rt.name());
+  
+        String doc = path.getFirst();
+        String attachment = StringUtils.join(path.getAfterFirst(), "=");
 
-        try {
-            switch(rt) {
-                case ALLDOCS: return new AllDocsDirectoryResource(connector,host, this);
-                case DOCUMENT: return new DocumentAttachmentCollection(url, host, connector);
-                case DESIGN_ROOT: return new DesignDocRoot(connector, host, this);
-                case ATTACHMENT: {
-                    String[] daa = splitDocAndAttachment(url);
-                    return new AttachmentResource(daa[1], host, connector, daa[0]);
-                }
+        if (StringUtils.isEmpty(doc)) return ROOT;
+
+
+
+        log.info("doc:  " + doc);
+        log.info("attachment: " + attachment);
+        
+        if (!connector.contains(doc)) {
+            log.info("document NOT exists: " + doc);
+            return null;
+        }
+
+        log.info("document exists: " + doc);
+        if (StringUtils.isEmpty(attachment)) {
+            log.info("Document Object");
+            return new DocumentAttachmentCollection(doc, host, connector);
+        }  else {
+            if (connector.contains(doc + "/" + attachment)) {
+                log.info("Attachement Object");
+                return new AttachmentResource(attachment, host, connector, doc);
+            } else {
+                log.info("Attachment not found");
+                return null;
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
 
-        return null;
+
 
 
     }
 
 
-    public String trimContext(String url) {
-        //url = url.replaceFirst( "/root", "");
-        if (url.indexOf("/") == 0) {
-            url = url.substring(1);
-        }
-
-
-        return url;
+    public static String getAttachment(Path path) {
+        String[] parts = path.getParts();
+        if (parts == null || parts.length < 2) return null;
+        return StringUtils.join(ArrayUtils.subarray(parts, 1, parts.length), "/");
     }
 
-    public String[] splitDocAndAttachment(String url) {
-        String doc = url.substring(0, url.indexOf("/"));
-        String attachment = url.substring(url.indexOf("/") + 1, url.length());
-        return new String[] { doc, attachment};
+
+    private boolean isRoot( Path path ) {
+        log.info("Checking path: " + path.toString());
+        if( path == null) return true;
+        return false;
     }
 
-    public ResourceType determineType (String url) {
 
-        if (StringUtils.isEmpty(url)) return ResourceType.ALLDOCS;
-
-        if (url.equals("_design") || url.equals("_design/") ) return ResourceType.DESIGN_ROOT;
-
-
-        String[] results = url.split("/");
-        if (results.length == 1) {
-            return ResourceType.DOCUMENT;
-        }
-        if (results.length > 1) {
-            if ("_design".equals(results[0])) {
-                return ResourceType.DOCUMENT;
-            }
-            return ResourceType.ATTACHMENT;
-        }
-        return ResourceType.ALLDOCS;
-    }
 
 
 

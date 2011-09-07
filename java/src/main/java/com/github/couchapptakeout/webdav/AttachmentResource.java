@@ -52,6 +52,7 @@ import org.ektorp.CouchDbConnector;
  */
 public class AttachmentResource implements Resource, CopyableResource, DeletableResource, GetableResource, MoveableResource, PropFindableResource, PropPatchableResource, LockableResource, DigestResource{
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(AttachmentResource.class);
 
     String name;
     String host;
@@ -76,6 +77,9 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
         this.host = host;
 
         JsonNode object = connector.get(JsonNode.class, docId);
+
+        log.info("object: " + object);
+
         attachmentInfo =  object.get("_attachments").get(name);
         if (attachmentInfo == null) {
             throw new RuntimeException("Attachment does not exisit");

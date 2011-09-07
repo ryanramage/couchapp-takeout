@@ -42,6 +42,8 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
         PutableResource, PropFindableResource,  GetableResource, DeletableResource {
 
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DocumentAttachmentCollection.class);
+
     private ObjectNode node;
     private CouchDbConnector connector;
     String host;
@@ -58,9 +60,8 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     }
 
 
-
-
-    DocumentAttachmentCollection(String id, String host, CouchDbConnector connector) {
+    private void setId(String id) {
+        System.out.println("Doc attach col: " + id);
         this.id = id;
         if (id.startsWith("._")) {
             throw new RuntimeException("Not a mac drive");
@@ -72,14 +73,21 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
         if (id.startsWith("_design:")) {
             this.id  = this.id.replaceFirst("_design:", "_design/");
         }
+    }
 
 
+    DocumentAttachmentCollection(String id, String host, CouchDbConnector connector) {
+        
+        setId(id);
         try {
             System.out.println("Looking for doc: " + this.id);
             ObjectNode node = connector.get(ObjectNode.class, this.id);
             this.node = node;
             this.connector = connector;
             this.host = host;
+            log.info("node: " + node);
+
+
         } catch (Exception e) {
             System.out.println("The doc: " + this.id + " is not found");
             throw new IllegalArgumentException("The doc: " + this.id + " is not found");
@@ -91,6 +99,7 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
         this.node = node;
         this.connector = connector;
         this.host = host;
+        setId(node.get("_id").getTextValue());
     }
 
 

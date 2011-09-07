@@ -140,6 +140,7 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
     @Override
     public Resource child(String id) {
         System.out.println("Get child: " + id);
+        if (!connector.contains(id)) return null;
         try {
             return new DocumentAttachmentCollection(id, host, connector);
         } catch (Exception e) {
@@ -156,6 +157,7 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
         for (Row row : vr) {
             results.add(new DocumentAttachmentCollection((ObjectNode)row.getDocAsNode(),host, connector));
         }
+        System.out.println("Thre are " + results.size());
         return results;
     }
 
