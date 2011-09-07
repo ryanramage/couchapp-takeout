@@ -103,6 +103,11 @@ Have it also run couchdb-lucene or elasticsearch and wire up a httpd_global_hand
 This project is under an [Apache 2.0 license](https://github.com/ryanramage/couchapp-takeout/blob/master/LICENSE.txt) .
 
 
+## Jenkins Build
+CloudBees graciously offers free Jenkins builds to open source projects. See the build for Couchapp-Takeout here:
+
+https://reupholster.ci.cloudbees.com/job/Takeout%20Java%20Build/
+
 
 
 
