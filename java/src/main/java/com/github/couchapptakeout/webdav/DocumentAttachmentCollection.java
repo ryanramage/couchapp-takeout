@@ -10,6 +10,7 @@ import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.DeletableResource;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.GetableResource;
+import com.bradmcevoy.http.MoveableResource;
 import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.PutableResource;
 import com.bradmcevoy.http.Range;
@@ -21,6 +22,8 @@ import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.ettrema.http.fs.NullSecurityManager;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,6 +32,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.AttachmentInputStream;
@@ -39,7 +43,7 @@ import org.ektorp.CouchDbConnector;
  * @author ryan
  */
 public class DocumentAttachmentCollection implements CollectionResource, Resource, DigestResource,
-        PutableResource, PropFindableResource,  GetableResource, DeletableResource {
+        PutableResource, PropFindableResource,  GetableResource, DeletableResource, MoveableResource {
 
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DocumentAttachmentCollection.class);
@@ -173,9 +177,16 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
 
     @Override
     public Resource createNew(String name, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
-        System.out.println("doc create new attachement ");
+        System.out.println("before copy bytes ");
 
-        AttachmentInputStream ais = new AttachmentInputStream(name, in, contentType);
+
+        byte[] bytes = IOUtils.toByteArray(in);  // whole lotta mem
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        IOUtils.closeQuietly(in);
+        
+        log.info("After copy. Create new attachment. Length: " + bytes.length);
+
+        AttachmentInputStream ais = new AttachmentInputStream(name, bais, contentType);
 
         connector.createAttachment(node.get("_id").getTextValue(), node.get("_rev").getTextValue(), ais);
         return new AttachmentResource(name, host, connector, node.get("_id").getTextValue());
@@ -222,6 +233,28 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     @Override
     public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
         connector.delete(id, node.get("_rev").getTextValue());
+    }
+
+    @Override
+    public void moveTo(CollectionResource cr, String newName) throws ConflictException, NotAuthorizedException, BadRequestException {
+        // can only move to a All AllDocs Dir
+        if (cr instanceof AllDocsDirectoryResource) {
+            // perform copy/rename
+
+            // for now, just copy the doc...
+
+            //ObjectNode onode = (ObjectNode) node;
+            //onode.r
+
+            connector.create(newName, node);
+            connector.delete(node);
+
+            //node = connector.get(JsonNode.class, newName);
+
+
+        } else throw new RuntimeException("Can only rename a doc");
+
+
     }
 
 }

@@ -29,6 +29,17 @@ public class WebDavServer {
 
 
     Berry berry;
+    int port = 8080;
+
+
+    public WebDavServer() {
+
+    }
+
+    public WebDavServer(int port) {
+        this.port = port;
+    }
+
 
 
     public void start(CouchDbConnector connector) throws InterruptedException {
@@ -59,12 +70,17 @@ public class WebDavServer {
         }
 
         CouchDbConnector connector = createLocalConnector(db);
-        WebDavServer instance = new WebDavServer();
+        final WebDavServer instance = new WebDavServer();
         try {
             instance.start(connector);
         } catch (InterruptedException ex) {
             Logger.getLogger(WebDavServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() { instance.stop(); }
+        });
+
     }
 
 

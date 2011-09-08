@@ -79,7 +79,7 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
     @Override
     public String getName() {
         System.out.println("Get name");
-        return "/";
+        return null;
     }
 
     @Override

@@ -8,6 +8,7 @@ package com.github.couchapptakeout;
 import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.EmbeddedBrowser;
 import com.github.couchapptakeout.ui.Splash;
+import com.github.couchapptakeout.webdav.WebDavServer;
 import java.awt.Desktop;
 import java.awt.MenuItem;
 import java.awt.TrayIcon.MessageType;
@@ -33,6 +34,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventServiceLocator;
@@ -84,7 +86,7 @@ public class App {
     ImageIcon splashIcon;
     boolean hadToLoad = false;
     CouchDbInstance couchDbInstance;
-    
+    WebDavServer webdavServer;
 
 
     public App(String appName, String src_host, String src_db, int src_port, String src_username) {
@@ -110,6 +112,9 @@ public class App {
            @Override
             public void onEvent(ShutDownMessage t) {
                 try {
+                    if (webdavServer != null) {
+                        webdavServer.stop();
+                    }
                     Thread.sleep(200);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
@@ -415,7 +420,16 @@ public class App {
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        try {
+            // start webdav
+            startWebDavServer(db);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         hideSplashDialog();
+
 
         //lastly, if had to load, setup replication
         if (hadToLoad) {
@@ -449,6 +463,8 @@ public class App {
         }
     }
 
+
+    
 
     protected boolean isEmbeddedRequested(JsonNode design) {
         boolean embedded = false;
@@ -725,6 +741,18 @@ public class App {
         browser.validate();
         browser.repaint();
     }
+
+
+    protected void startWebDavServer(CouchDbConnector connector) throws InterruptedException {
+        int port = 8080;
+        if(SystemUtils.IS_OS_WINDOWS) {
+            port = 80;
+        }
+        webdavServer = new WebDavServer(port);
+        webdavServer.start(connector);
+
+    }
+
 
 
     protected void copyDesignDocs(CouchDbConnector src, CouchDbConnector dest) {

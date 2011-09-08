@@ -8,12 +8,17 @@ package com.github.couchapptakeout.webdav;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.github.couchapptakeout.App;
+import java.net.URLEncoder;
+
+import org.ektorp.http.URI;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ektorp.CouchDbConnector;
+import org.ektorp.http.HttpResponse;
+import org.ektorp.http.HttpStatus;
 
 /**
  *
@@ -74,18 +79,36 @@ public class CouchResourceFactory implements ResourceFactory{
             log.info("Document Object");
             return new DocumentAttachmentCollection(doc, host, connector);
         }  else {
-            if (connector.contains(doc + "/" + attachment)) {
+            if (containsAttachment(connector, doc, attachment)) {
                 log.info("Attachement Object");
                 return new AttachmentResource(attachment, host, connector, doc);
             } else {
                 log.info("Attachment not found");
                 return null;
             }
+
+
+
         }
 
 
 
 
+    }
+
+
+    public boolean containsAttachment(CouchDbConnector connector, String doc, String attachment) {
+        try {
+            String path = connector.path() + "/" + URLEncoder.encode(doc, "UTF-8") + "/" + URLEncoder.encode(attachment, "UTF-8");
+            HttpResponse response = connector.getConnection().head(path);
+            if (response.getCode() == HttpStatus.NOT_FOUND) {
+                return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
+        } catch (Exception ex) {
+            Logger.getLogger(CouchResourceFactory.class.getName()).log(Level.SEVERE, null, ex);
+            return Boolean.FALSE;
+        }
     }
 
 

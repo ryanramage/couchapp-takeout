@@ -21,6 +21,7 @@ import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.PropPatchableResource;
 import com.bradmcevoy.http.PutableResource;
 import com.bradmcevoy.http.Range;
+import com.bradmcevoy.http.ReplaceableResource;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,6 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.CouchDbConnector;
 
@@ -50,9 +53,12 @@ import org.ektorp.CouchDbConnector;
  *
  * @author ryan
  */
-public class AttachmentResource implements Resource, CopyableResource, DeletableResource, GetableResource, MoveableResource, PropFindableResource, PropPatchableResource, LockableResource, DigestResource{
+public class AttachmentResource implements Resource, CopyableResource, DeletableResource, GetableResource, MoveableResource, PropFindableResource, PropPatchableResource, LockableResource, DigestResource, ReplaceableResource{
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(AttachmentResource.class);
+
+    private static HashMap<String,LockToken> locks = new HashMap<String,LockToken>();
+
 
     String name;
     String host;
@@ -60,15 +66,13 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     String docId;
     private NullSecurityManager security = new NullSecurityManager();
 
+    JsonNode object;
     JsonNode attachmentInfo;
-    Date createDate = new Date();
+    Date createDate = new Date(1); // just to keep consistant. 
     
 
     AttachmentResource(String name, String host, CouchDbConnector connector, String docId) {
 
-        if (name.startsWith("._")) {
-            throw new RuntimeException("Not a mac drive");
-        }
 
         System.out.println("Attachement resource on " + docId + " with name " + name);
         this.name = name;
@@ -76,7 +80,7 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
         this.docId = docId;
         this.host = host;
 
-        JsonNode object = connector.get(JsonNode.class, docId);
+        object = connector.get(JsonNode.class, docId);
 
         log.info("object: " + object);
 
@@ -85,6 +89,28 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
             throw new RuntimeException("Attachment does not exisit");
         }
     }
+
+    public AttachmentResource(String name, String host, CouchDbConnector connector, ObjectNode node) {
+        this.name = name;
+        this.connector = connector;
+        this.docId = node.get("_id").getTextValue();
+        this.host = host;
+
+        object = node;
+
+        log.info("object: " + object);
+
+        attachmentInfo =  object.get("_attachments").get(name);
+        if (attachmentInfo == null) {
+            throw new RuntimeException("Attachment does not exisit");
+        }
+
+    }
+
+
+
+
+
 
 
     @Override
@@ -153,7 +179,6 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
 
     @Override
     public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
-        JsonNode object = connector.get(JsonNode.class, docId);
         connector.deleteAttachment(docId, object.get("_rev").getTextValue(), name);
     }
 
@@ -171,7 +196,7 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     @Override
     public Long getMaxAgeSeconds(Auth auth) {
         System.out.println("Att max age");
-        return null;
+        return 315360000l;
     }
 
     @Override
@@ -211,7 +236,10 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     @Override
     public LockResult lock(LockTimeout lt, LockInfo li) throws NotAuthorizedException, PreConditionFailedException, LockedException {
         System.out.println("Lock");
-        LockToken newToken = new LockToken(UUID.randomUUID().toString(), li, lt);
+
+        
+        LockToken newToken = new LockToken(object.get("_rev").getTextValue(), li, lt);
+        locks.put(object.get("_rev").getTextValue(), newToken);
         return LockResult.success( newToken );
     }
 
@@ -224,13 +252,13 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     @Override
     public void unlock(String string) throws NotAuthorizedException, PreConditionFailedException {
         System.out.println("Unlock");
+        locks.remove(object.get("_rev").getTextValue());
         return;
     }
 
     @Override
     public LockToken getCurrentLock() {
-        System.out.println("Current");
-        return null;
+        return locks.get(object.get("_rev").getTextValue());
     }
 
 
@@ -243,6 +271,47 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     @Override
     public boolean isDigestAllowed() {
         return true;
+    }
+
+    @Override
+    public void replaceContent(InputStream in, Long l) throws BadRequestException, ConflictException, NotAuthorizedException {
+        // update the
+        log.info("REPLACE resource");
+
+        String contentType = "application/binary";
+        try {
+            contentType = attachmentInfo.get("content_type").getTextValue();
+        } catch (Exception e) {}
+
+
+
+        try {
+
+            String rev = object.get("_rev").getTextValue();
+
+            System.out.println("Attach rev: " + rev);
+
+            AttachmentInputStream ais = new AttachmentInputStream(name, in, contentType);
+
+            rev  = connector.createAttachment(docId, rev, ais);
+            
+            System.out.println("Attach rev: " + rev);
+            
+            object = connector.get(JsonNode.class, docId);
+
+            log.info("object: " + object);
+
+            attachmentInfo =  object.get("_attachments").get(name);
+            if (attachmentInfo == null) {
+                throw new RuntimeException("Attachment does not exisit");
+            }
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
