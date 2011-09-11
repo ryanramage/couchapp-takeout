@@ -54,20 +54,20 @@ public class DesignDocRoot implements Resource, DigestResource, MakeCollectionab
 
 
     private CouchDbConnector connector;
-    private NullSecurityManager security = new NullSecurityManager();
+    
 
 
 
     String host;
-    CouchResourceFactory factory;
+    CouchResourceFactory couchFactory;
     Date started = new Date();
 
 
-    public DesignDocRoot(CouchDbConnector connector, String host, CouchResourceFactory factory) {
+    public DesignDocRoot(CouchDbConnector connector, String host, CouchResourceFactory couchFactory) {
         System.out.println("deign created eqauls");
         this.connector = connector;
         this.host = host;
-        this.factory = factory;
+        this.couchFactory = couchFactory;
     }
 
 
@@ -86,19 +86,19 @@ public class DesignDocRoot implements Resource, DigestResource, MakeCollectionab
     @Override
     public Object authenticate(String string, String string1) {
         System.out.println("Get authen");
-        return security.authenticate(string, string);
+        return couchFactory.getSecurityManager().authenticate(string, string);
     }
 
     @Override
     public boolean authorise(Request rqst, Method method, Auth auth) {
         System.out.println("Get auth");
-        return security.authorise(rqst, method, auth, this);
+        return couchFactory.getSecurityManager().authorise(rqst, method, auth, this);
     }
 
     @Override
     public String getRealm() {
         System.out.println("Get realm");
-        return security.getRealm(host);
+        return couchFactory.getSecurityManager().getRealm(host);
     }
 
     @Override
@@ -119,13 +119,13 @@ public class DesignDocRoot implements Resource, DigestResource, MakeCollectionab
     @Override
     public Object authenticate(DigestResponse dr) {
         System.out.println("auth dr");
-        return security.authenticate(dr);
+        return couchFactory.getSecurityManager().authenticate(dr);
     }
 
     @Override
     public boolean isDigestAllowed() {
         System.out.println("Get is digest all");
-        return true;
+        return couchFactory.isDigestAllowed();
     }
 
     @Override
@@ -133,14 +133,14 @@ public class DesignDocRoot implements Resource, DigestResource, MakeCollectionab
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         node.put("_id", "_design/" + name);
         connector.create(node);
-        DocumentAttachmentCollection dac = new DocumentAttachmentCollection(node, host, connector);
+        DocumentAttachmentCollection dac = new DocumentAttachmentCollection(node, host, connector, couchFactory);
         return dac;
     }
 
     @Override
     public Resource child(String id) {
         System.out.println("Get child: " + id);
-        return new DocumentAttachmentCollection("_design/" + id, host, connector);
+        return new DocumentAttachmentCollection("_design/" + id, host, connector, couchFactory);
     }
 
 
@@ -153,7 +153,7 @@ public class DesignDocRoot implements Resource, DigestResource, MakeCollectionab
         query.allDocs().startKey("_design").endKey("_design0").includeDocs(true);
         ViewResult result = connector.queryView(query);
         for (Row row : result) {
-            results.add(new DocumentAttachmentCollection((ObjectNode)row.getDocAsNode(),host, connector));
+            results.add(new DocumentAttachmentCollection((ObjectNode)row.getDocAsNode(),host, connector, couchFactory));
         }
         return results;
     }

@@ -53,11 +53,13 @@ import org.ektorp.CouchDbConnector;
  *
  * @author ryan
  */
-public class AttachmentResource implements Resource, CopyableResource, DeletableResource, GetableResource, MoveableResource, PropFindableResource, PropPatchableResource, LockableResource, DigestResource, ReplaceableResource{
+public class AttachmentResource implements Resource, CopyableResource, DeletableResource, GetableResource, MoveableResource, PropFindableResource, PropPatchableResource, LockableResource, DigestResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(AttachmentResource.class);
 
     private static HashMap<String,LockToken> locks = new HashMap<String,LockToken>();
+
+    public static HashMap<String,Date> dates = new HashMap<String, Date>();
 
 
     String name;
@@ -68,10 +70,10 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
 
     JsonNode object;
     JsonNode attachmentInfo;
-    Date createDate = new Date(1); // just to keep consistant. 
-    
+    Date createDate = new Date(1221012l); // just to keep consistant.
+    CouchResourceFactory couchFactory;
 
-    AttachmentResource(String name, String host, CouchDbConnector connector, String docId) {
+    AttachmentResource(String name, String host, CouchDbConnector connector, String docId, CouchResourceFactory couchFactory) {
 
 
         System.out.println("Attachement resource on " + docId + " with name " + name);
@@ -79,6 +81,7 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
         this.connector = connector;
         this.docId = docId;
         this.host = host;
+        this.couchFactory = couchFactory;
 
         object = connector.get(JsonNode.class, docId);
 
@@ -88,14 +91,16 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
         if (attachmentInfo == null) {
             throw new RuntimeException("Attachment does not exisit");
         }
+
+
     }
 
-    public AttachmentResource(String name, String host, CouchDbConnector connector, ObjectNode node) {
+    public AttachmentResource(String name, String host, CouchDbConnector connector, ObjectNode node, CouchResourceFactory couchFactory) {
         this.name = name;
         this.connector = connector;
         this.docId = node.get("_id").getTextValue();
         this.host = host;
-
+        this.couchFactory = couchFactory;
         object = node;
 
         log.info("object: " + object);
@@ -139,13 +144,25 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
 
     @Override
     public String getRealm() {
-        System.out.println("attach get realm");
-        return security.getRealm(host);
+        System.out.println("attach get realm: " + host);
+        String realm =  security.getRealm(host);
+        if (realm == null) {
+            realm =  "aRealm";
+        }
+        return realm;
     }
 
     @Override
     public Date getModifiedDate() {
         System.out.println("attach get mod date");
+        String dateId = docId + name;
+
+        if (dates.containsKey(dateId)) {
+            System.out.println("Got a cached date");
+            return dates.get(dateId);
+        }
+
+        
         return createDate;
     }
 
@@ -196,7 +213,7 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     @Override
     public Long getMaxAgeSeconds(Auth auth) {
         System.out.println("Att max age");
-        return 315360000l;
+        return couchFactory.getMaxAgeSeconds();
     }
 
     @Override
@@ -225,7 +242,7 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
 
     @Override
     public Date getCreateDate() {
-        return createDate;
+        return getModifiedDate();
     }
 
     @Override
@@ -270,10 +287,10 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
 
     @Override
     public boolean isDigestAllowed() {
-        return true;
+        return couchFactory.isDigestAllowed();
     }
 
-    @Override
+
     public void replaceContent(InputStream in, Long l) throws BadRequestException, ConflictException, NotAuthorizedException {
         // update the
         log.info("REPLACE resource");
@@ -306,7 +323,7 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
                 throw new RuntimeException("Attachment does not exisit");
             }
 
-
+            dates.put(docId + name, new Date());
 
         } catch (Exception e) {
             e.printStackTrace();

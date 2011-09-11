@@ -10,6 +10,12 @@ import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.DeletableResource;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.GetableResource;
+import com.bradmcevoy.http.LockInfo;
+import com.bradmcevoy.http.LockResult;
+import com.bradmcevoy.http.LockTimeout;
+import com.bradmcevoy.http.LockToken;
+import com.bradmcevoy.http.LockableResource;
+import com.bradmcevoy.http.LockingCollectionResource;
 import com.bradmcevoy.http.MoveableResource;
 import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.PutableResource;
@@ -19,11 +25,15 @@ import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.LockedException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.http.exceptions.PreConditionFailedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.ettrema.http.fs.NullSecurityManager;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,8 +42,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.CouchDbConnector;
@@ -43,7 +57,7 @@ import org.ektorp.CouchDbConnector;
  * @author ryan
  */
 public class DocumentAttachmentCollection implements CollectionResource, Resource, DigestResource,
-        PutableResource, PropFindableResource,  GetableResource, DeletableResource, MoveableResource {
+        PutableResource, PropFindableResource,  GetableResource, DeletableResource, MoveableResource, LockableResource, LockingCollectionResource {
 
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DocumentAttachmentCollection.class);
@@ -51,36 +65,38 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     private ObjectNode node;
     private CouchDbConnector connector;
     String host;
-    private NullSecurityManager security = new NullSecurityManager();
     private Date d = new Date();
 
     String id;
+    CouchResourceFactory couchFactory;
 
-    public DocumentAttachmentCollection(ObjectNode node, CouchDbConnector connector, String host, String id) {
+
+    public DocumentAttachmentCollection(ObjectNode node, CouchDbConnector connector, String host, String id, CouchResourceFactory couchFactory) {
         this.node = node;
         this.connector = connector;
         this.host = host;
         this.id = id;
+        this.couchFactory = couchFactory;
     }
 
 
     private void setId(String id) {
         System.out.println("Doc attach col: " + id);
         this.id = id;
-        if (id.startsWith("._")) {
-            throw new RuntimeException("Not a mac drive");
-        }
-
-        if (id.endsWith("/")) {
-            this.id  = this.id.substring(0, id.length() - 1);
-        }
-        if (id.startsWith("_design:")) {
-            this.id  = this.id.replaceFirst("_design:", "_design/");
-        }
+//        if (id.startsWith("._")) {
+//            throw new RuntimeException("Not a mac drive");
+//        }
+//
+//        if (id.endsWith("/")) {
+//            this.id  = this.id.substring(0, id.length() - 1);
+//        }
+//        if (id.startsWith("_design:")) {
+//            this.id  = this.id.replaceFirst("_design:", "_design/");
+//        }
     }
 
 
-    DocumentAttachmentCollection(String id, String host, CouchDbConnector connector) {
+    DocumentAttachmentCollection(String id, String host, CouchDbConnector connector, CouchResourceFactory couchFactory) {
         
         setId(id);
         try {
@@ -89,6 +105,7 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
             this.node = node;
             this.connector = connector;
             this.host = host;
+            this.couchFactory = couchFactory;
             log.info("node: " + node);
 
 
@@ -99,18 +116,19 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
         }
     }
 
-    DocumentAttachmentCollection(ObjectNode node, String host, CouchDbConnector connector) {
+    DocumentAttachmentCollection(ObjectNode node, String host, CouchDbConnector connector, CouchResourceFactory couchFactory) {
         this.node = node;
         this.connector = connector;
         this.host = host;
         setId(node.get("_id").getTextValue());
+        this.couchFactory = couchFactory;
     }
 
 
     @Override
     public Resource child(String name) {
         System.out.println("doc get child!");
-        return new AttachmentResource(name, host, connector, node.get("_id").getTextValue());
+        return new AttachmentResource(name, host, connector, node.get("_id").getTextValue(), couchFactory);
     }
 
     @Override
@@ -120,7 +138,7 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
         JsonNode attachments = node.get("_attachments");
         if (attachments == null) return result;
         for (Iterator<String> i = attachments.getFieldNames(); i.hasNext();) {
-            result.add(new AttachmentResource(i.next(), host, connector, node.get("_id").getTextValue()));
+            result.add(new AttachmentResource(i.next(), host, connector, node.get("_id").getTextValue(), couchFactory));
         }                
         return result;
     }
@@ -128,7 +146,7 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     @Override
     public String getUniqueId() {
         System.out.println("doc get uniq id");
-        return node.get("_rev").getTextValue();
+        return id;
     }
 
     @Override
@@ -141,20 +159,20 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     @Override
     public Object authenticate(String user, String password) {
         System.out.println("doc get auth");
-        return security.authenticate(user, password);
+        return couchFactory.getSecurityManager().authenticate(user, password);
     }
 
 
     @Override
     public boolean authorise(Request rqst, Method method, Auth auth) {
         System.out.println("doc get auth2");
-        return security.authorise(rqst, method, auth, this);
+        return couchFactory.getSecurityManager().authorise(rqst, method, auth, this);
     }
 
     @Override
     public String getRealm() {
         System.out.println("doc get realm");
-        return security.getRealm(host);
+        return couchFactory.getSecurityManager().getRealm(host);
     }
 
     @Override
@@ -172,13 +190,23 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     @Override
     public boolean isDigestAllowed() {
         System.out.println("doc get is digest ");
-        return true;
+        return couchFactory.isDigestAllowed();
     }
 
     @Override
     public Resource createNew(String name, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
         System.out.println("before copy bytes ");
 
+
+
+//        File dest = new File(new File("/Users/ryan/webdav"), name);
+//            FileOutputStream out = null;
+//        try {
+//                out = new FileOutputStream(dest);
+//                IOUtils.copy(in, out);
+//        } finally {
+//                IOUtils.closeQuietly(out);
+//        }
 
         byte[] bytes = IOUtils.toByteArray(in);  // whole lotta mem
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
@@ -189,7 +217,8 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
         AttachmentInputStream ais = new AttachmentInputStream(name, bais, contentType);
 
         connector.createAttachment(node.get("_id").getTextValue(), node.get("_rev").getTextValue(), ais);
-        return new AttachmentResource(name, host, connector, node.get("_id").getTextValue());
+        AttachmentResource.dates.put(id + name, new Date());
+        return new AttachmentResource(name, host, connector, node.get("_id").getTextValue(), couchFactory);
 
 
     }
@@ -208,7 +237,7 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     @Override
     public Long getMaxAgeSeconds(Auth auth) {
         System.out.println("doc get max age");
-        return null;
+         return couchFactory.getMaxAgeSeconds();
     }
 
     @Override
@@ -227,7 +256,7 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
     @Override
     public Object authenticate(DigestResponse dr) {
         System.out.println("doc get auth dr");
-        return security.authenticate(dr);
+        return couchFactory.getSecurityManager().authenticate(dr);
     }
 
     @Override
@@ -255,6 +284,54 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
         } else throw new RuntimeException("Can only rename a doc");
 
 
+    }
+
+    @Override
+    public LockResult lock(LockTimeout lt, LockInfo li) throws NotAuthorizedException, PreConditionFailedException, LockedException {
+        System.out.println("Attachment collecton  Lock");
+        LockToken newToken = new LockToken(UUID.randomUUID().toString(), li, lt);
+        return LockResult.success( newToken );
+    }
+
+    @Override
+    public LockResult refreshLock(String string) throws NotAuthorizedException, PreConditionFailedException {
+        System.out.println("Attachment collecton  Refresh");
+        return LockResult.failed( LockResult.FailureReason.PRECONDITION_FAILED );
+    }
+
+    @Override
+    public void unlock(String string) throws NotAuthorizedException, PreConditionFailedException {
+        System.out.println("Attachment collecton Unlock");
+        return;
+    }
+
+    @Override
+    public LockToken getCurrentLock() {
+        System.out.println("Attachment collecton Current");
+        return null;
+    }
+
+    @Override
+    public LockToken createAndLock(String name, LockTimeout lt, LockInfo li) throws NotAuthorizedException {
+        System.out.println("Attachment collecton create and lock");
+        byte[] byes = {};
+
+        ByteArrayInputStream bas = new ByteArrayInputStream(byes);
+        try {
+            createNew(name, bas, 0l, "application/binary");
+
+            
+        } catch (IOException ex) {
+            Logger.getLogger(DocumentAttachmentCollection.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ConflictException ex) {
+            Logger.getLogger(DocumentAttachmentCollection.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadRequestException ex) {
+            Logger.getLogger(DocumentAttachmentCollection.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+
+        LockToken t = new LockToken(name, li, lt);
+        return t;
     }
 
 }

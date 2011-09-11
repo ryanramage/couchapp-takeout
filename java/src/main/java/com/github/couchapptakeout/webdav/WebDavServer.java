@@ -5,13 +5,18 @@
 
 package com.github.couchapptakeout.webdav;
 
+import com.bradmcevoy.http.AuthenticationService;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.http11.Http11ResponseHandler;
+import com.bradmcevoy.http.webdav.DefaultWebDavResponseHandler;
 import com.ettrema.berry.Berry;
 import com.ettrema.berry.simple.SimpletonServer;
+import com.ettrema.http.fs.SimpleSecurityManager;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
@@ -43,11 +48,38 @@ public class WebDavServer {
 
 
     public void start(CouchDbConnector connector) throws InterruptedException {
-        ResourceFactory resourceFactory = new CouchResourceFactory(connector);
-        HttpManager httpManager = new HttpManager( resourceFactory );
+
+        SimpleSecurityManager security = new SimpleSecurityManager();
+        security.setRealm("aRealm");
+        Map<String,String> map = new HashMap<String, String>();
+        map.put("me", "pwd");
+        security.setNameAndPasswords(map);
+
+
+
+
+
+
+        CouchResourceFactory resourceFactory = new CouchResourceFactory(connector);
+        resourceFactory.setSecurityManager(security);
+        resourceFactory.setMaxAgeSeconds(3600l);
+
+
+        AuthenticationService authService = new AuthenticationService();
+        authService.setDisableDigest(false);
+        authService.setDisableBasic(true);
+
+
+        com.bradmcevoy.http.webdav.DefaultWebDavResponseHandler dwdrh = new DefaultWebDavResponseHandler(authService);
+
+
+        HttpManager httpManager = new HttpManager( resourceFactory, dwdrh, authService );
         List httpAdapters = new ArrayList();
 
         Http11ResponseHandler responseHandler = httpManager.getResponseHandler();
+
+
+
 	SimpletonServer simpletonServer = new SimpletonServer(100, 20, responseHandler);
 	simpletonServer.setHttpPort(8080);
 

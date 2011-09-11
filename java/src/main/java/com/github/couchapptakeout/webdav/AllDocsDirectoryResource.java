@@ -17,6 +17,7 @@ import com.bradmcevoy.http.LockableResource;
 import com.bradmcevoy.http.LockingCollectionResource;
 import com.bradmcevoy.http.MakeCollectionableResource;
 import com.bradmcevoy.http.PropFindableResource;
+import com.bradmcevoy.http.PutableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
@@ -44,34 +45,35 @@ import org.ektorp.CouchDbConnector;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
 import org.ektorp.ViewResult.Row;
+import sun.util.logging.resources.logging;
 
 /**
  *
  * @author ryan
  */
 
-public class AllDocsDirectoryResource implements Resource, DigestResource,
+public class AllDocsDirectoryResource implements Resource, DigestResource, PutableResource,
         MakeCollectionableResource, PropFindableResource,  GetableResource, LockableResource, LockingCollectionResource{
 
     private CouchDbConnector connector;
-    private NullSecurityManager security = new NullSecurityManager();
 
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(AllDocsDirectoryResource.class);
 
     String host;
-    CouchResourceFactory factory;
+    CouchResourceFactory couchFactory;
     Date started = new Date();
 
-    public AllDocsDirectoryResource(CouchDbConnector connector, String host, CouchResourceFactory factory) {
+    public AllDocsDirectoryResource(CouchDbConnector connector, String host, CouchResourceFactory couchFactory) {
         System.out.println("All docs created eqauls");
         this.connector = connector;
         this.host = host;
-        this.factory = factory;
+        this.couchFactory = couchFactory;
     }
 
 
     @Override
-    public String getUniqueId() {
+    public String getUniqueId() { 
         System.out.println("Get uni");
         return "_all_docs";
     }
@@ -85,19 +87,19 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
     @Override
     public Object authenticate(String string, String string1) {
         System.out.println("Get authen");
-        return security.authenticate(string, string);
+        return couchFactory.getSecurityManager().authenticate(string, string);
     }
 
     @Override
     public boolean authorise(Request rqst, Method method, Auth auth) {
         System.out.println("Get auth");
-        return security.authorise(rqst, method, auth, this);
+        return couchFactory.getSecurityManager().authorise(rqst, method, auth, this);
     }
 
     @Override
     public String getRealm() {
         System.out.println("Get realm");
-        return security.getRealm(host);
+        return couchFactory.getSecurityManager().getRealm(host);
     }
 
     @Override
@@ -118,13 +120,13 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
     @Override
     public Object authenticate(DigestResponse dr) {
         System.out.println("auth dr");
-        return security.authenticate(dr);
+        return couchFactory.getSecurityManager().authenticate(dr);
     }
 
     @Override
     public boolean isDigestAllowed() {
         System.out.println("Get is digest all");
-        return true;
+        return couchFactory.isDigestAllowed();
     }
 
     @Override
@@ -133,16 +135,19 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         node.put("_id", name);
         connector.create(node);
-        DocumentAttachmentCollection dac = new DocumentAttachmentCollection(node, host, connector);
+        DocumentAttachmentCollection dac = new DocumentAttachmentCollection(node, host, connector, couchFactory);
         return dac;
     }
 
     @Override
     public Resource child(String id) {
         System.out.println("Get child: " + id);
+        if (".DS_Store".equals(id)) {
+            return dsstore;
+        } 
         if (!connector.contains(id)) return null;
         try {
-            return new DocumentAttachmentCollection(id, host, connector);
+            return new DocumentAttachmentCollection(id, host, connector, couchFactory);
         } catch (Exception e) {
             return null;
         }
@@ -151,12 +156,17 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
     @Override
     public List<? extends Resource> getChildren() {
         System.out.println("Get children");
-        List<DocumentAttachmentCollection> results = new ArrayList<DocumentAttachmentCollection>();
+        List<Resource> results = new ArrayList<Resource>();
         ViewQuery vq = new ViewQuery().allDocs().includeDocs(true);
         ViewResult vr = connector.queryView(vq);
         for (Row row : vr) {
-            results.add(new DocumentAttachmentCollection((ObjectNode)row.getDocAsNode(),host, connector));
+            results.add(new DocumentAttachmentCollection((ObjectNode)row.getDocAsNode(),host, connector, couchFactory));
         }
+        if (dsstore != null) {
+            results.add(dsstore);
+        }
+
+
         System.out.println("Thre are " + results.size());
         return results;
     }
@@ -238,6 +248,26 @@ public class AllDocsDirectoryResource implements Resource, DigestResource,
         LockToken t = new LockToken(string, li, lt);
         return t;
     }
+
+    protected MemoryResource dsstore;
+
+    @Override
+    public Resource createNew(String newName, InputStream inputStream, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
+        log.info("All docs: We are asked to create a name: " + newName + " with length: " + length + " of type: " + contentType);
+        if (".DS_Store".equals(newName) ) {
+            log.info("Create ds store");
+            // APPLE finder, you are so special
+            dsstore = new MemoryResource(newName, host, couchFactory);
+            dsstore.bytes = IOUtils.toByteArray(inputStream);
+            dsstore.createdDate = new Date();
+            dsstore.dateModified = new Date();
+            return dsstore;
+        }
+        
+        throw new IllegalArgumentException("But we are not able to ");
+    }
+
+
 
 
 

@@ -69,7 +69,7 @@ public class WebDavServerTest {
     /**
      * Test of start method, of class WebDavServer.
      */
-    @Test
+    
     public void testListResources() throws InterruptedException, SardineException, IOException {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -98,7 +98,7 @@ public class WebDavServerTest {
         expect(connector.queryView((ViewQuery) EasyMock.anyObject())).andReturn(vr);
         replay(connector);
 
-        Sardine sardine = SardineFactory.begin();
+        Sardine sardine = SardineFactory.begin("me", "pwd");
         List<DavResource> resources = sardine.getResources("http://localhost:8080/");
 
         // THere should only be one directory call alpha
@@ -122,7 +122,7 @@ public class WebDavServerTest {
     /**
      * Test of start method, of class WebDavServer.
      */
-    @Test
+    
     public void saveFile() throws InterruptedException, SardineException, FileNotFoundException, IOException {
 
         expect(connector.contains("Come_As_You_Are")).andReturn(Boolean.TRUE).anyTimes();
@@ -145,7 +145,7 @@ public class WebDavServerTest {
         replay(connector);
 
 
-        Sardine sardine = SardineFactory.begin();
+        Sardine sardine = SardineFactory.begin("me", "pwd");
         InputStream fis = new FileInputStream(new File("src/test/resources/local.ini"));
         sardine.put("http://localhost:8080/Come_As_You_Are/local.ini", fis, "text/plain");
 
@@ -181,7 +181,7 @@ public class WebDavServerTest {
         replay(connector);
         replay(client);
 
-        Sardine sardine = SardineFactory.begin();
+        Sardine sardine = SardineFactory.begin("me", "pwd");
         InputStream fis = new FileInputStream(new File("src/test/resources/local.ini"));
         sardine.delete("http://localhost:8080/Come_As_You_Are/local.ini");
 
@@ -189,21 +189,21 @@ public class WebDavServerTest {
      /**
      * Test of start method, of class WebDavServer.
      */
-    @Test
+    
     public void createRootDoc() throws InterruptedException, SardineException, FileNotFoundException {
 
         expect(connector.contains("id")).andReturn(Boolean.FALSE);
         replay(connector);
 
         System.out.println("create root doc!");
-        Sardine sardine = SardineFactory.begin();
+        Sardine sardine = SardineFactory.begin("me", "pwd");
         sardine.createDirectory("http://localhost:8080/NewDir/");
     }
 
      /**
      * Test of start method, of class WebDavServer.
      */
-    @Test
+    
     public void deleteRootDoc() throws InterruptedException, SardineException, FileNotFoundException, IOException {
 
         expect(connector.contains("NewDir")).andReturn(Boolean.TRUE).anyTimes();
@@ -216,8 +216,13 @@ public class WebDavServerTest {
         replay(connector);
 
         System.out.println("create root doc!");
-        Sardine sardine = SardineFactory.begin();
+        Sardine sardine = SardineFactory.begin("me", "pwd");
         sardine.delete("http://localhost:8080/NewDir/");
+    }
+
+    @Test
+    public void singleTest() {
+
     }
 
 

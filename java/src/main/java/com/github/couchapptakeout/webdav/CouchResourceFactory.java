@@ -8,7 +8,10 @@ package com.github.couchapptakeout.webdav;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.ettrema.http.fs.NullSecurityManager;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.ektorp.http.URI;
 
@@ -35,10 +38,24 @@ public class CouchResourceFactory implements ResourceFactory{
     private AllDocsDirectoryResource ROOT;
 
 
+    com.bradmcevoy.http.SecurityManager securityManager;
+    boolean digestAllowed = true;
+    Long maxAgeSeconds;
+
+    private Map<String,MemoryResource> specialOnes = new HashMap<String, MemoryResource>();
+
     public CouchResourceFactory(CouchDbConnector connector) {
         this.connector = connector;
+        securityManager = new NullSecurityManager();
         ROOT = new AllDocsDirectoryResource(connector, "localhost:8080", this);
     }
+
+
+    public void setSecurityManager(com.bradmcevoy.http.SecurityManager securityManager) {
+        this.securityManager = securityManager;
+    }
+
+
 
       public String getSupportedLevels() {
         return "1,2";
@@ -62,6 +79,17 @@ public class CouchResourceFactory implements ResourceFactory{
         String doc = path.getFirst();
         String attachment = StringUtils.join(path.getAfterFirst(), "=");
 
+
+        if (attachment != null && attachment.contains(".DS_Store")) {
+            log.info("DS store locked and loaded");
+            return specialOnes.get(attachment);
+        }
+
+        if (".DS_Store".equals(doc)) {
+            return ROOT.dsstore;
+        }
+
+
         if (StringUtils.isEmpty(doc)) return ROOT;
 
 
@@ -77,11 +105,11 @@ public class CouchResourceFactory implements ResourceFactory{
         log.info("document exists: " + doc);
         if (StringUtils.isEmpty(attachment)) {
             log.info("Document Object");
-            return new DocumentAttachmentCollection(doc, host, connector);
+            return new DocumentAttachmentCollection(doc, host, connector, this);
         }  else {
             if (containsAttachment(connector, doc, attachment)) {
                 log.info("Attachement Object");
-                return new AttachmentResource(attachment, host, connector, doc);
+                return new AttachmentResource(attachment, host, connector, doc, this);
             } else {
                 log.info("Attachment not found");
                 return null;
@@ -99,11 +127,16 @@ public class CouchResourceFactory implements ResourceFactory{
 
     public boolean containsAttachment(CouchDbConnector connector, String doc, String attachment) {
         try {
-            String path = connector.path() + "/" + URLEncoder.encode(doc, "UTF-8") + "/" + URLEncoder.encode(attachment, "UTF-8");
+            String path = connector.path()  + URLEncoder.encode(doc, "UTF-8")  + "/" + URLEncoder.encode(attachment, "UTF-8");
+
+
+            System.out.println("Checking head 4: " + path);
+
             HttpResponse response = connector.getConnection().head(path);
             if (response.getCode() == HttpStatus.NOT_FOUND) {
                 return Boolean.FALSE;
             }
+            System.out.println("FOUND");
             return Boolean.TRUE;
         } catch (Exception ex) {
             Logger.getLogger(CouchResourceFactory.class.getName()).log(Level.SEVERE, null, ex);
@@ -128,6 +161,54 @@ public class CouchResourceFactory implements ResourceFactory{
 
 
 
+        public String getRealm(String host) {
+		return securityManager.getRealm(host);
+	}
+
+	/**
+	 *
+	 * @return - the caching time for files
+	 */
+	public Long maxAgeSeconds(AttachmentResource resource) {
+		return maxAgeSeconds;
+	}
+
+
+	public com.bradmcevoy.http.SecurityManager getSecurityManager() {
+		return securityManager;
+	}
+
+	public void setMaxAgeSeconds(Long maxAgeSeconds) {
+		this.maxAgeSeconds = maxAgeSeconds;
+	}
+
+	public Long getMaxAgeSeconds() {
+		return maxAgeSeconds;
+	}
+
+
+
+	public void setContextPath(String contextPath) {
+		this.contextPath = contextPath;
+	}
+
+	public String getContextPath() {
+		return contextPath;
+	}
+
+
+
+	boolean isDigestAllowed() {
+		boolean b = digestAllowed && securityManager != null && securityManager.isDigestAllowed();
+		if(log.isTraceEnabled()) {
+			log.trace("isDigestAllowed: " + b);
+		}
+		return b;
+	}
+
+	public void setDigestAllowed(boolean digestAllowed) {
+		this.digestAllowed = digestAllowed;
+	}
 
 
 
