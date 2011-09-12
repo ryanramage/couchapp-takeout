@@ -195,7 +195,7 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
 
     @Override
     public Resource createNew(String name, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
-        System.out.println("before copy bytes ");
+        System.out.println("Create New, before copy bytes to " + name);
 
 
 
@@ -208,18 +208,22 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
 //                IOUtils.closeQuietly(out);
 //        }
 
-        byte[] bytes = IOUtils.toByteArray(in);  // whole lotta mem
-        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        IOUtils.closeQuietly(in);
-        
-        log.info("After copy. Create new attachment. Length: " + bytes.length);
+        try {
+            byte[] bytes = IOUtils.toByteArray(in);  // whole lotta mem
+            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+            IOUtils.closeQuietly(in);
 
-        AttachmentInputStream ais = new AttachmentInputStream(name, bais, contentType);
+            log.info("After copy. Create new attachment. Length: " + bytes.length);
 
-        connector.createAttachment(node.get("_id").getTextValue(), node.get("_rev").getTextValue(), ais);
-        AttachmentResource.dates.put(id + name, new Date());
-        return new AttachmentResource(name, host, connector, node.get("_id").getTextValue(), couchFactory);
+            AttachmentInputStream ais = new AttachmentInputStream(name, bais, contentType);
 
+            connector.createAttachment(node.get("_id").getTextValue(), node.get("_rev").getTextValue(), ais);
+            AttachmentResource.dates.put(id + name, new Date());
+            return new AttachmentResource(name, host, connector, node.get("_id").getTextValue(), couchFactory);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 
     }
 

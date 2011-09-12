@@ -66,7 +66,7 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     String host;
     CouchDbConnector connector;
     String docId;
-    private NullSecurityManager security = new NullSecurityManager();
+
 
     JsonNode object;
     JsonNode attachmentInfo;
@@ -133,19 +133,19 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     @Override
     public Object authenticate(String user, String password) {
         System.out.println("attach get auth");
-        return security.authenticate(user, password);
+        return couchFactory.getSecurityManager().authenticate(user, password);
     }
 
     @Override
     public boolean authorise(Request rqst, Method method, Auth auth) {
         System.out.println("attach get auth 1");
-        return security.authorise(rqst, method, auth, this);
+        return couchFactory.getSecurityManager().authorise(rqst, method, auth, this);
     }
 
     @Override
     public String getRealm() {
         System.out.println("attach get realm: " + host);
-        String realm =  security.getRealm(host);
+        String realm =  couchFactory.getSecurityManager().getRealm(host);
         if (realm == null) {
             realm =  "aRealm";
         }
@@ -196,7 +196,13 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
 
     @Override
     public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
-        connector.deleteAttachment(docId, object.get("_rev").getTextValue(), name);
+        object = connector.get(JsonNode.class, docId);
+
+        log.info("object: " + object);
+
+        attachmentInfo =  object.get("_attachments").get(name);
+        String rev = connector.deleteAttachment(docId, object.get("_rev").getTextValue(), name);
+        
     }
 
     @Override
@@ -255,8 +261,8 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
         System.out.println("Lock");
 
         
-        LockToken newToken = new LockToken(object.get("_rev").getTextValue(), li, lt);
-        locks.put(object.get("_rev").getTextValue(), newToken);
+        LockToken newToken = new LockToken(createLockKey(), li, lt);
+        locks.put(createLockKey(), newToken);
         return LockResult.success( newToken );
     }
 
@@ -269,20 +275,20 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
     @Override
     public void unlock(String string) throws NotAuthorizedException, PreConditionFailedException {
         System.out.println("Unlock");
-        locks.remove(object.get("_rev").getTextValue());
+        locks.remove(createLockKey());
         return;
     }
 
     @Override
     public LockToken getCurrentLock() {
-        return locks.get(object.get("_rev").getTextValue());
+        return locks.get(createLockKey());
     }
 
 
 
     @Override
     public Object authenticate(DigestResponse dr) {
-        return security.authenticate(dr);
+        return couchFactory.getSecurityManager().authenticate(dr);
     }
 
     @Override
@@ -329,6 +335,11 @@ public class AttachmentResource implements Resource, CopyableResource, Deletable
             e.printStackTrace();
         }
 
+    }
+
+
+    public String createLockKey() {
+        return object.get("_id").getTextValue() + name;
     }
 
 

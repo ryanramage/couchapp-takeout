@@ -75,50 +75,53 @@ public class CouchResourceFactory implements ResourceFactory{
 
     private Resource find(String host, Path path) {
 
-  
-        String doc = path.getFirst();
-        String attachment = StringUtils.join(path.getAfterFirst(), "=");
+        try {
+            String doc = path.getFirst();
+            String attachment = StringUtils.join(path.getAfterFirst(), "=");
 
 
-        if (attachment != null && attachment.contains(".DS_Store")) {
-            log.info("DS store locked and loaded");
-            return specialOnes.get(attachment);
-        }
+            if (attachment != null && attachment.contains(".DS_Store")) {
+                log.info("DS store locked and loaded");
+                return specialOnes.get(attachment);
+            }
 
-        if (".DS_Store".equals(doc)) {
-            return ROOT.dsstore;
-        }
-
-
-        if (StringUtils.isEmpty(doc)) return ROOT;
-
-
-
-        log.info("doc:  " + doc);
-        log.info("attachment: " + attachment);
-        
-        if (!connector.contains(doc)) {
-            log.info("document NOT exists: " + doc);
-            return null;
-        }
-
-        log.info("document exists: " + doc);
-        if (StringUtils.isEmpty(attachment)) {
-            log.info("Document Object");
-            return new DocumentAttachmentCollection(doc, host, connector, this);
-        }  else {
-            if (containsAttachment(connector, doc, attachment)) {
-                log.info("Attachement Object");
-                return new AttachmentResource(attachment, host, connector, doc, this);
-            } else {
-                log.info("Attachment not found");
-                return null;
+            if (".DS_Store".equals(doc)) {
+                return ROOT.dsstore;
             }
 
 
+            if (StringUtils.isEmpty(doc)) return ROOT;
 
+
+
+            log.info("doc:  " + doc);
+            log.info("attachment: " + attachment);
+
+            if (!connector.contains(doc)) {
+                log.info("document NOT exists: " + doc);
+                return null;
+            }
+
+            log.info("document exists: " + doc);
+            if (StringUtils.isEmpty(attachment)) {
+                log.info("Document Object");
+                return new DocumentAttachmentCollection(doc, host, connector, this);
+            }  else {
+                if (containsAttachment(connector, doc, attachment)) {
+                    log.info("Attachement Object");
+                    return new AttachmentResource(attachment, host, connector, doc, this);
+                } else {
+                    log.info("Attachment not found");
+                    return null;
+                }
+
+
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-
 
 
 
