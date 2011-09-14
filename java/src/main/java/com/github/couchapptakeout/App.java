@@ -5,6 +5,7 @@
 
 package com.github.couchapptakeout;
 
+import com.github.couchapptakeout.lucene.LuceneServer;
 import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.EmbeddedBrowser;
 import com.github.couchapptakeout.ui.Splash;
@@ -32,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -420,6 +422,7 @@ public class App {
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         
         try {
             // start webdav
@@ -427,6 +430,24 @@ public class App {
         } catch (InterruptedException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+
+
+
+        // start couchdb-lucene
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    LuceneServer lucene = new LuceneServer();
+                    lucene.start();
+                } catch (Exception ex) {
+                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }).start();
+
+
 
         hideSplashDialog();
 

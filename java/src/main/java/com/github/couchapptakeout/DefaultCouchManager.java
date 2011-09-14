@@ -244,8 +244,12 @@ public class DefaultCouchManager implements LocalCouch{
     protected void setEmbeddedCouchPort(String localIniFile, int port) throws IOException {
         Wini ini = new Wini(new File(localIniFile));
         ini.put("httpd", "port", port);
-        // side effect! need to ensure bind address is 127.0.0.1
+        // side effects!!! need to ensure bind address is 127.0.0.1, add lucene
         ini.put("httpd", "bind_address", "127.0.0.1");
+        ini.put("httpd_global_handlers", "_fti", "{couch_httpd_proxy, handle_proxy_req, <<\"http://127.0.0.1:5985\">>}");
+
+
+
         ini.store();
     }
 
