@@ -166,6 +166,11 @@
             <version>1.0.3</version>
         </dependency>
         <dependency>
+            <groupId>com.github.rnewson.couchdb.lucene</groupId>
+            <artifactId>couchdb-lucene</artifactId>
+            <version>0.8.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>com.ettrema</groupId>
             <artifactId>berry-server</artifactId>
             <version>1.4</version>
@@ -211,6 +216,10 @@
         <repository>
             <id>ettrema-repo</id>
             <url>http://www.ettrema.com/maven2</url>
+        </repository>
+        <repository>
+            <id>eckoit</id>
+            <url>https://eckoit.googlecode.com/svn/maven</url>
         </repository>
     </repositories>
     <distributionManagement>
