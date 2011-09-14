@@ -215,8 +215,10 @@ public class DocumentAttachmentCollection implements CollectionResource, Resourc
 
             log.info("After copy. Create new attachment. Length: " + bytes.length);
 
-            AttachmentInputStream ais = new AttachmentInputStream(name, bais, contentType);
+            
 
+            ObjectNode node = connector.get(ObjectNode.class, this.id);
+            AttachmentInputStream ais = new AttachmentInputStream(name, bais, contentType);
             connector.createAttachment(node.get("_id").getTextValue(), node.get("_rev").getTextValue(), ais);
             AttachmentResource.dates.put(id + name, new Date());
             return new AttachmentResource(name, host, connector, node.get("_id").getTextValue(), couchFactory);

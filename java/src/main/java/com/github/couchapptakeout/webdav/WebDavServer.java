@@ -79,12 +79,12 @@ public class WebDavServer {
         Http11ResponseHandler responseHandler = httpManager.getResponseHandler();
 
 
-
-	SimpletonServer simpletonServer = new SimpletonServer(100, 20, responseHandler);
-	simpletonServer.setHttpPort(8080);
+        JettyAdaptor jettyAdaptor = new JettyAdaptor();
 
 
-        httpAdapters.add( simpletonServer);
+
+
+        httpAdapters.add( jettyAdaptor);
         berry = new Berry( httpManager, httpAdapters );
         berry.start();
     }
