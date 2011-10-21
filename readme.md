@@ -6,9 +6,12 @@ From one link in your couchapp, it will install all the pieces on an end users c
 * Do you want updates be pushed to them automatically?
 * [Optional] Do you want to have their local data sync with an online couch?
 
-If you want to see it on an existing application, install 'Couch Tasks' on your computer:
+Here are some projects using couchapp-takeout:
 
-http://ecko-it.couchone.com:5984/couchtasks/_design/takeout/install.html
+* The Little Library [http://library.ic.tl/library/_design/takeout/install.html]
+* Ecko-It [http://eckoit.com/download.html]
+* CouchTasks [http://ecko-it.couchone.com:5984/couchtasks/_design/takeout/install.html]
+
 
 
 # How to use
