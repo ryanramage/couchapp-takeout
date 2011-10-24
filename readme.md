@@ -86,13 +86,20 @@ _design/takeout/install.html
 * CouchDB is installed in .couchapptakeout in the users home directory.
 
 
-# Processes And Uninstalling
+# System Processes
 
-Couchapp-Takeout runs under a java process which internally starts couchdb. 
+While Couchapp-Takeout is running, the following processes will be seen:
 
-Couchapp-Takeout is not a model citizen yet. Although it gives a resonable install, there is no un-installer. All files that 
-couchapp-takeout install are in the users root directory, under /Users/username/.couchapptakeout So removing this directory, and any desktop
-items will be sufficiant to unintall the application.
+1. The iniial java process. 
+2. Couchdb and it's associated erlang processes. 
+
+# Uninstalling
+
+## Under Windows
+
+1. Click on the program icon in the taskbar (or on the desktop), and click on "Quit" .
+2. Go to Start>Control Panel>Uninstall Programs, and find the app's name in the list of installed programs, and click on it to uninstall.
+3. Delete the .couchapptakeout folder in your home directory.
 
 
 
