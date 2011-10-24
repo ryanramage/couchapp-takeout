@@ -86,6 +86,16 @@ _design/takeout/install.html
 * CouchDB is installed in .couchapptakeout in the users home directory.
 
 
+# Processes And Uninstalling
+
+Couchapp-Takeout runs under a java process which internally starts couchdb. 
+
+Couchapp-Takeout is not a model citizen yet. Although it gives a resonable install, there is no un-installer. All files that 
+couchapp-takeout install are in the users root directory, under /Users/username/.couchapptakeout So removing this directory, and any desktop
+items will be sufficiant to unintall the application.
+
+
+
 # Future
 
 On the install page, if a mobile os is detected, have some what of generating a link, or intent, that takes them to a mobile couch in the app store, and somehow passes the replication params.
