@@ -119,14 +119,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.bushe</groupId>
-            <artifactId>eventbus</artifactId>
-            <version>1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ektorp</groupId>
-            <artifactId>org.ektorp</artifactId>
-            <version>1.1.0</version>
+            <groupId>com.github.couchapp-takeout</groupId>
+            <artifactId>plugins</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -165,58 +160,9 @@
             <artifactId>swing-layout</artifactId>
             <version>1.0.3</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.rnewson.couchdb.lucene</groupId>
-            <artifactId>couchdb-lucene</artifactId>
-            <version>0.8.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ettrema</groupId>
-            <artifactId>berry-server</artifactId>
-            <version>1.4</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>endrick-channel</artifactId>
-                    <groupId>com.ettrema</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-continuation</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-http</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-server</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>xSocket</artifactId>
-                    <groupId>org.xsocket</groupId>
-                </exclusion>
 
-            </exclusions>
-        </dependency>
-        <!--
-        <dependency>
-          <groupId>org.xlightweb</groupId>
-          <artifactId>xlightweb</artifactId>
-          <version>2.13</version>
-        </dependency>
-        -->
-        <dependency>
-            <groupId>com.googlecode.sardine</groupId>
-            <artifactId>sardine</artifactId>
-            <version>146</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <repositories>
-        <repository>
-            <id>ettrema-repo</id>
-            <url>http://www.ettrema.com/maven2</url>
-        </repository>
         <repository>
             <id>eckoit</id>
             <url>https://eckoit.googlecode.com/svn/maven</url>

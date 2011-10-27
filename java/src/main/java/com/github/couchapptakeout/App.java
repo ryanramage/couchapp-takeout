@@ -5,7 +5,8 @@
 
 package com.github.couchapptakeout;
 
-import com.github.couchapptakeout.lucene.LuceneServer;
+import com.github.couchapptakeout.events.ExitApplicationMessage;
+import com.github.couchapptakeout.events.TrayMessage;
 import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.EmbeddedBrowser;
 import com.github.couchapptakeout.ui.Splash;
@@ -17,7 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.math.BigDecimal;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import org.apache.commons.configuration.ConfigurationException;
+
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
@@ -419,19 +420,6 @@ public class App {
         }
 
 
-
-        // start couchdb-lucene
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    LuceneServer lucene = new LuceneServer();
-                    lucene.start();
-                } catch (Exception ex) {
-                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }).start();
 
 
         hideSplashDialog();

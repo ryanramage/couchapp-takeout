@@ -5,6 +5,7 @@
 
 package com.github.couchapptakeout;
 
+import com.github.couchapptakeout.events.ExitApplicationMessage;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;

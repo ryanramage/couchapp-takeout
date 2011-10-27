@@ -6,6 +6,9 @@
 package com.github.couchapptakeout;
 
 
+import com.github.couchapptakeout.events.AddMenuItemEvent;
+import com.github.couchapptakeout.events.ExitApplicationMessage;
+import com.github.couchapptakeout.events.TrayMessage;
 import java.awt.AWTException;
 import java.awt.Image;
 import java.awt.MenuItem;

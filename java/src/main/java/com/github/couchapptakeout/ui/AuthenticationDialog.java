@@ -11,7 +11,7 @@
 
 package com.github.couchapptakeout.ui;
 
-import com.github.couchapptakeout.ExitApplicationMessage;
+import com.github.couchapptakeout.events.ExitApplicationMessage;
 import org.bushe.swing.event.EventBus;
 
 /**

@@ -21,27 +21,6 @@ public class DefaultCouchManagerTest {
      Boolean complete = false;
 
 
-    /**
-     * Test of getEmbeddedCouchPort method, of class DefaultCouchManager.
-     */
-    @Test
-    public void testGetEmbeddedCouchPort() throws Exception {
-        DefaultCouchManager manager = new DefaultCouchManager();
-        int port = manager.getEmbeddedCouchPort("src/test/resources/local.ini");
-        assertEquals(81, port);
-    }
-
-    @Test
-    public void testSetEmbeddedCouchPort() throws Exception {
-        DefaultCouchManager manager = new DefaultCouchManager();
-        int random = new Random().nextInt();
-        manager.setEmbeddedCouchPort("src/test/resources/local-write.ini", random);
-
-        // now check
-        int port = manager.getEmbeddedCouchPort("src/test/resources/local-write.ini");
-        System.out.println("random: " + random);
-        assertEquals(random, port);
-    }
 
 
     @Test

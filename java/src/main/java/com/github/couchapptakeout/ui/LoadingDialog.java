@@ -11,7 +11,7 @@
 
 package com.github.couchapptakeout.ui;
 
-import com.github.couchapptakeout.ExitApplicationMessage;
+import com.github.couchapptakeout.events.ExitApplicationMessage;
 import com.github.couchapptakeout.LoadingMessage;
 import java.awt.Dimension;
 import java.awt.Toolkit;
