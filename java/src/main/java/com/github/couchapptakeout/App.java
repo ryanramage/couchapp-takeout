@@ -7,6 +7,7 @@ package com.github.couchapptakeout;
 
 import com.github.couchapptakeout.events.ExitApplicationMessage;
 import com.github.couchapptakeout.events.TrayMessage;
+import com.github.couchapptakeout.plugins.Plugin;
 import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.EmbeddedBrowser;
 import com.github.couchapptakeout.ui.Splash;
@@ -445,16 +446,74 @@ public class App {
             startSync(db, couchDbInstance, syncType, pullFilter, pushFilter);
         }
         try {
-            String appClass = design.get("advanced").get("appClass").getTextValue();
-            System.out.println("Starting app class: " + appClass);
-
-            Class clazz = ClassUtils.getClass(appClass);
-            Object instance = clazz.newInstance();
-            MethodUtils.invokeMethod(instance, "start", new Object[]{db, couchDbInstance });
+            
+            List<String> plugins = findPluginNamess(design);
+            List<Class> pluginClasses = convertPluginNamesToClasses(plugins);
+            startPlugins(pluginClasses, db, couchDbInstance);
         } catch (Exception e ) {
             e.printStackTrace();
         }
     }
+
+
+
+    protected List<String> findPluginNamess(JsonNode design){
+        List<String> plugins = new ArrayList<String>();
+        try {
+            for (JsonNode plugin : design.get("advanced").get("plugins")) {
+                plugins.add(plugin.getTextValue());
+            }
+        } catch (Exception e) {}
+
+        try {
+            // legacy
+            String appClass = design.get("advanced").get("appClass").getTextValue();
+            plugins.add(appClass);
+        } catch(Exception e) {
+
+        }
+
+
+        return plugins;
+    }
+
+
+
+    protected List<Class> convertPluginNamesToClasses(List<String> names) {
+        List<Class> plugins = new ArrayList<Class>();
+        for (String appClass : names) {
+            try {
+                Class clazz = ClassUtils.getClass(appClass);
+                plugins.add(clazz);
+            } catch (Exception ex) {
+                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return plugins;
+    }
+
+    protected void startPlugins(List<Class> plugins,  CouchDbConnector connector, CouchDbInstance couchDBInstance ) {
+        for (Class plugin : plugins) {
+            startPlugin(plugin, connector, couchDBInstance);
+        }
+    }
+
+
+    protected void startPlugin(Class plugin, CouchDbConnector connector, CouchDbInstance couchDBInstance ) {
+        try {
+            Plugin instance = (Plugin)plugin.newInstance();
+            instance.start(connector, couchDBInstance);
+        } catch (Exception ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+
+
+
+
+
+    
 
 
     protected boolean isEmbeddedRequested(JsonNode design) {

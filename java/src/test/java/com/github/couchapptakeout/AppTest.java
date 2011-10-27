@@ -5,6 +5,11 @@
 
 package com.github.couchapptakeout;
 
+import java.util.Arrays;
+import java.util.List;
+import java.io.IOException;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.ektorp.impl.StdCouchDbInstance;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.http.HttpClient;
@@ -59,6 +64,69 @@ public class AppTest {
         String result = app2.getSrcReplicationUrl(false);
         assertEquals("http://choose.iriscouch.com:81/choose", result);
     }
+
+
+    @Test
+    public void testFindPluginNames() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode design = mapper.readTree("{  \"advanced\" : {  \"plugins\" : [ \"com.test.Alpha\" ]          }   }");
+        App app2 = new App("App Name", "choose.iriscouch.com", "choose", 81, null);
+
+        List<String> results = app2.findPluginNamess(design);
+        assertEquals(1, results.size());
+        assertEquals("com.test.Alpha", results.get(0));
+    }
+
+    @Test
+    public void testFindPluginNamesEmpty() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode design = mapper.readTree("{  \"advanced\" : {  \"plugins\" : [  ]          }   }");
+        App app2 = new App("App Name", "choose.iriscouch.com", "choose", 81, null);
+
+        List<String> results = app2.findPluginNamess(design);
+        assertEquals(0, results.size());
+
+    }
+    @Test
+    public void testFindPluginNamesNothing() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode design = mapper.readTree("{  \"advanced\" : {          }   }");
+        App app2 = new App("App Name", "choose.iriscouch.com", "choose", 81, null);
+
+        List<String> results = app2.findPluginNamess(design);
+        assertEquals(0, results.size());
+
+    }
+    @Test
+    public void testFindPluginNamesNoAdvanced() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode design = mapper.readTree("{  \"pizza\" : {          }   }");
+        App app2 = new App("App Name", "choose.iriscouch.com", "choose", 81, null);
+
+        List<String> results = app2.findPluginNamess(design);
+        assertEquals(0, results.size());
+    }
+
+
+    @Test
+    public void testConvertNamesToClasses() throws IOException {
+        App app2 = new App("App Name", "choose.iriscouch.com", "choose", 81, null);
+
+        List<String> plugins = Arrays.asList("com.github.couchapptakeout.App");
+
+        List<Class> results = app2.convertPluginNamesToClasses(plugins);
+
+        assertEquals(1, results.size());
+        assertEquals(App.class, results.get(0));
+        
+
+
+    }
+
+
+
+
+
 
 
     // Needs to be an integration test
