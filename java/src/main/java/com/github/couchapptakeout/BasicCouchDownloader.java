@@ -5,6 +5,8 @@
 
 package com.github.couchapptakeout;
 
+import com.github.couchapptakeout.events.LoadingMessage;
+import com.github.couchapptakeout.events.utils.FileDownloader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

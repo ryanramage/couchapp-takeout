@@ -11,7 +11,8 @@
 
 package com.github.couchapptakeout.ui;
 
-import com.github.couchapptakeout.LoadingMessage;
+
+import com.github.couchapptakeout.events.LoadingMessage;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import org.bushe.swing.event.EventBus;

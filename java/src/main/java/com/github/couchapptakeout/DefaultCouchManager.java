@@ -6,6 +6,7 @@
 package com.github.couchapptakeout;
 
 import com.github.couchapptakeout.events.ExitApplicationMessage;
+import com.github.couchapptakeout.events.utils.Unzipper;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -156,7 +157,7 @@ public class DefaultCouchManager implements LocalCouch{
         return  new StdCouchDbConnector(name, instance);
     }
 
-    protected static File getWorkingDir() {
+    public static File getWorkingDir() {
        String userHome = System.getProperty("user.home");
        File homeDir = new File(userHome, ".couchapptakeout");
        if (!homeDir.exists()) {

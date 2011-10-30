@@ -5,7 +5,7 @@
 
 package com.github.couchapptakeout;
 
-import java.util.Random;
+import com.github.couchapptakeout.events.utils.DefaultUnzipper;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

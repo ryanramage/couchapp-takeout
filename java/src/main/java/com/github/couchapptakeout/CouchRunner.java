@@ -6,6 +6,7 @@
 package com.github.couchapptakeout;
 
 import com.github.couchapptakeout.events.ExitApplicationMessage;
+import com.github.couchapptakeout.events.LoadingMessage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

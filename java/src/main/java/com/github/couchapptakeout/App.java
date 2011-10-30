@@ -6,7 +6,9 @@
 package com.github.couchapptakeout;
 
 import com.github.couchapptakeout.events.ExitApplicationMessage;
+import com.github.couchapptakeout.events.LoadingMessage;
 import com.github.couchapptakeout.events.TrayMessage;
+import com.github.couchapptakeout.events.utils.DefaultUnzipper;
 import com.github.couchapptakeout.plugins.Plugin;
 import com.github.couchapptakeout.ui.AuthenticationDialog;
 import com.github.couchapptakeout.ui.EmbeddedBrowser;
@@ -18,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 
 import java.net.MalformedURLException;
@@ -502,7 +505,10 @@ public class App {
     protected void startPlugin(Class plugin, CouchDbConnector connector, CouchDbInstance couchDBInstance ) {
         try {
             Plugin instance = (Plugin)plugin.newInstance();
-            instance.start(connector, couchDBInstance);
+
+            // a little lame. Calling the default couchmanager? huh?
+            File workingDir = createPluginWorkingDirectory(plugin, DefaultCouchManager.getWorkingDir());
+            instance.start(connector, couchDBInstance, workingDir);
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -510,7 +516,10 @@ public class App {
 
 
 
-
+    protected File createPluginWorkingDirectory(Class plugin, File parent) {
+        String folderName = plugin.getName().replaceAll(".", "_");
+        return new File(parent, folderName);
+    }
 
 
     
