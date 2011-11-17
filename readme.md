@@ -113,6 +113,7 @@ Create plugins that can run code on the users desktop. For those tasks where a c
 https://github.com/ryanramage/couchapp-takeout-plugins
 
 And some upcoming plugins:
+
 * https://github.com/ryanramage/couch-audio-recorder
 * a couchdb-lucene or elasticsearch plugin 
 
