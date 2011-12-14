@@ -1,4 +1,4 @@
 # Generic Maven ignores
 target/
-*/java/velocity.log
-*/java/logs/*
+java/velocity.log
+java/logs/*
