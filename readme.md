@@ -90,7 +90,7 @@ _design/takeout/install.html
 
 While Couchapp-Takeout is running, the following processes will be seen:
 
-1. The iniial java process. 
+1. The initial java process. 
 2. Couchdb and it's associated erlang processes. 
 
 # Uninstalling
@@ -103,19 +103,27 @@ While Couchapp-Takeout is running, the following processes will be seen:
 
 
 
-# Future
+# The Distant Future 
 
-On the install page, if a mobile os is detected, have some what of generating a link, or intent, that takes them to a mobile couch in the app store, and somehow passes the replication params.
+At this point we have ironed out most of the workflow, but Couchapp Takeout still feels a bit heavy from the launch. I really need to spend some time reducing dependancies, making smaller couch binaries, and making it feel more snappy. 
 
-Lanuch with an embedded browser in a application window. This can be done currently, but not at the point were it should be done. :)
+For mobile users, on the install page, if a mobile os is detected we can generate a link, or intent, that takes them to a mobile couch in the app store, and somehow passes the replication params.
 
-Maybe try and intgreate with other less 'heavyweight' replicators, like
+Create plugins that can run code on the users desktop. For those tasks where a couchapp does not have enough horse power. I have started this here:
+https://github.com/ryanramage/couchapp-takeout-plugins
+
+And some upcoming plugins:
+
+* https://github.com/ryanramage/couch-audio-recorder
+* a couchdb-lucene or elasticsearch plugin 
+
+Maybe try and integrate with other less 'heavyweight' replicators, like
 
 * https://github.com/drsm79/ReplicateMe
 * https://chrome.google.com/webstore/detail/clbdmcdmjlpgedncppkbkepbilnhgddh
+* https://github.com/mikeal/pouchdb
 
-
-Have it also run couchdb-lucene or elasticsearch and wire up a httpd_global_handlers. 
+  
 
 
 ## License
