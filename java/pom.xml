@@ -5,7 +5,7 @@
     <groupId>com.github.couchapp-takeout</groupId>
     <artifactId>couchapp-takeout</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>couchapp-takeout</name>
     <url>https://github.com/ryanramage/couchapp-takeout</url>
     <build>
@@ -121,7 +121,7 @@
         <dependency>
             <groupId>com.github.couchapp-takeout</groupId>
             <artifactId>plugins</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
